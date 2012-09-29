@@ -1,0 +1,5 @@
+<launch>
+  <node pkg="stage" type="stageros" name="stageros" args="$(find turtlebot_slam)/world/swarmlab_single_turtle.world" respawn="false" output="screen" />
+  <node pkg="rviz" type="rviz" name="rviz" />
+  <node pkg="turtlebot_slam" type="turtlebot_exploration" name="turtlebot_exploration" />
+</launch>

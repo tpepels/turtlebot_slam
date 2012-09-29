@@ -21,7 +21,7 @@ public:
 		commandPub = nh.advertise<geometry_msgs::Twist>("cmd_vel", 1);
 		// Subscribe to the simulated robot's laser scan topic and tell ROS to call
 		// this->commandCallback() whenever a new message is published on that topic
-		laserSub = nh.subscribe("base_scan", 1, &RandomWalk::commandCallback,
+		laserSub = nh.subscribe("base_scan", 1, &TurtlebotExploration::commandCallback,
 				this);
 	}
 	;
@@ -82,7 +82,7 @@ public:
 			if (closestRange < PROXIMITY_RANGE_M) {
 				fsm = FSM_ROTATE;
 				rotateStartTime = ros::Time::now();
-				rotateDuration = ros::Duration((rand() % 100) / RotateSpeedRADPS * 30);
+				rotateDuration = ros::Duration((rand() % 100) / ROTATE_SPEED_RADPS * 30);
 			}
 			/////////////////////// ANSWER CODE END ///////////////////
 		}
@@ -141,9 +141,9 @@ protected:
 };
 
 int main(int argc, char **argv) {
-	ros::init(argc, argv, "random_walk"); // Initiate new ROS node named "random_walk"
+	ros::init(argc, argv, "TurtlebotExploration"); // Initiate new ROS node named "random_walk"
 	ros::NodeHandle n;
-	RandomWalk walker(n); // Create new random walk object
+	TurtlebotExploration walker(n); // Create new random walk object
 	walker.spin(); // Execute FSM loop
 	return 0;
 }
