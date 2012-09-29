@@ -1,0 +1,18 @@
+<package>
+  <description brief="ros_slam_group5">
+
+     ros_slam_group5
+
+  </description>
+  <author>Cliff Laschet</author>
+  <license>BSD</license>
+  <review status="unreviewed" notes=""/>
+  <url>http://ros.org/wiki/ros_slam_group5</url>
+  <depend package="turtlebot_gazebo"/>
+  <depend package="roscpp"/>
+  <depend package="geometry_msgs"/>
+  <depend package="sensor_msgs"/>
+
+</package>
+
+
