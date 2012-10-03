@@ -2,8 +2,17 @@
 #include "ros/console.h"
 #include "geometry_msgs/Twist.h"
 #include "sensor_msgs/LaserScan.h"
+#include "nav_msgs/OccupancyGrid.h"
+// For transform support
+#include "tf/transform_broadcaster.h"
+#include "tf/transform_listener.h"
+#include "tf/message_filter.h"
+#include "message_filters/subscriber.h"
+#include "tf/transform_datatypes.h"
 #include <cstdlib> // Needed for rand()
 #include <ctime> // Needed to seed random number generator with a time value
+
+using namespace std;
 
 class TurtlebotExploration {
 
@@ -18,11 +27,11 @@ public:
 		// Advertise a new publisher for the simulated robot's velocity command topic
 		// (the second argument indicates that if multiple command messages are in
 		//  the queue to be sent, only the last command will be sent)
-		commandPub = nh.advertise<geometry_msgs::Twist>("cmd_vel", 1);
+		commandPub = nh.advertise<geometry_msgs::Twist>("cmd_vel", 1);		
 		// Subscribe to the simulated robot's laser scan topic and tell ROS to call
 		// this->commandCallback() whenever a new message is published on that topic
-		laserSub = nh.subscribe("base_scan", 1, &TurtlebotExploration::commandCallback,
-				this);
+		//laserSub = nh.subscribe("base_scan", 1, &TurtlebotExploration::commandCallback,this);
+		mapSub = nh.subscribe("map", 1000, &TurtlebotExploration::mapCallback, this);
 	}
 	;
 
@@ -32,6 +41,25 @@ public:
 		msg.linear.x = linearVelMPS;
 		msg.angular.z = angularVelRadPS;
 		commandPub.publish(msg);
+	}
+	;	
+
+	void mapCallback( const nav_msgs::OccupancyGrid& msg )
+	{
+		ROS_INFO("Map callback!!!");
+		tf::StampedTransform transform;
+		try 
+		{
+			listener.lookupTransform("/map", "/odom", ros::Time(0), transform);
+			listener.waitForTransform("/map", "/odom", ros::Time(0), ros::Duration(3.0));
+			ROS_INFO("X: ");
+			ROS_INFO("%s", transform.getOrigin().x());
+			ROS_INFO("\nY: ");
+			ROS_INFO("%s", transform.getOrigin().y()); 
+		}
+		catch(tf::TransformException ex) {
+			ROS_ERROR("%s", ex.what());
+		}
 	}
 	;
 
@@ -134,16 +162,20 @@ public:
 
 protected:
 	ros::Publisher commandPub; // Publisher to the simulated robot's velocity command topic
-	ros::Subscriber laserSub; // Subscriber to the simulated robot's laser scan topic
+	ros::Publisher posePublisher;
+	ros::Subscriber mapSub;
+	// ros::Subscriber laserSub; // Subscriber to the simulated robot's laser scan topic
 	enum FSM fsm; // Finite state machine for the random walk algorithm
 	ros::Time rotateStartTime; // Start time of the rotation
 	ros::Duration rotateDuration; // Duration of the rotation
+	tf::TransformListener listener;
 };
 
 int main(int argc, char **argv) {
 	ros::init(argc, argv, "TurtlebotExploration"); // Initiate new ROS node named "random_walk"
 	ros::NodeHandle n;
 	TurtlebotExploration walker(n); // Create new random walk object
+	ROS_INFO("INFO!");
 	walker.spin(); // Execute FSM loop
 	return 0;
 }
