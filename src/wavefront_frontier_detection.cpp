@@ -16,9 +16,7 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 	vector<vector<int> > frontiers;
 	// Cell state list for map/frontier open/closed
 	int map_size = map_height * map_width;
-	ROS_INFO("wfd 1");
 	std::map<int, int> cell_states;
-	ROS_INFO("wfd 2");
 	//
 	queue<int> q_m;	
 	q_m.push(pose);
@@ -26,7 +24,9 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 	int adj_vector[8];
 	int v_neighbours[8];
 	//
+	ROS_INFO("wfd 1");
 	while(!q_m.empty()) {
+		ROS_INFO("wfd 2");
 		int cur_pos = q_m.front();
 		q_m.pop();
 		// Skip if map_close_list
@@ -39,6 +39,8 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 			cell_states[cur_pos] = FRONTIER_OPEN_LIST;
 			// Second BFS
 			while(!q_f.empty()) {
+				ROS_INFO("wfd 3");
+				ROS_INFO("Size: %d", q_f.size());
 				int n_cell = q_f.front();
 				q_f.pop();
 				//
@@ -52,6 +54,7 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 					for(int i = 0; i < 8; i++) {
 						if(adj_vector[i] < map_size && adj_vector[i] >= 0) {
 							if(adj_vector[i] != FRONTIER_OPEN_LIST && adj_vector[i] != FRONTIER_CLOSE_LIST && adj_vector[i] != MAP_CLOSE_LIST) {
+								ROS_INFO("wfd 4");
 								q_f.push(adj_vector[i]);
 								cell_states[adj_vector[i]] = FRONTIER_OPEN_LIST;
 							}
@@ -62,21 +65,24 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 			}
 			frontiers.push_back(new_frontier);
 			//
+			ROS_INFO("WFD 4.5");
 			for(vector<int>::iterator it = new_frontier.begin(); it != new_frontier.end(); ++it) {
 				cell_states[*it] = MAP_CLOSE_LIST;
+				ROS_INFO("WFD 5");
 			}
 		}
 		//
 		get_neighbours(adj_vector, cur_pos, map_width);
 
 		for (int i = 0; i < 8; ++i) {
+			ROS_INFO("wfd 6");
 			if(adj_vector[i] < map_size && adj_vector[i] >= 0) {
 				if(cell_states[adj_vector[i]] != MAP_OPEN_LIST &&  cell_states[adj_vector[i]] != MAP_CLOSE_LIST) {
 					get_neighbours(v_neighbours, adj_vector[i], map_width);
 					bool map_open_neighbor = false;
 					for(int j = 0; j < 8; j++) {
 						if(v_neighbours[j] < map_size && v_neighbours[j] >= 0) {
-							if(map.data[v_neighbours[j]] < OCC_THRESHOLD) {
+							if(map.data[v_neighbours[j]] < OCC_THRESHOLD && map.data[v_neighbours[j]] >= 0) { //>= 0 AANPASSING
 								map_open_neighbor = true;
 								break;
 							}
@@ -94,6 +100,15 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 	return frontiers;
 }
 
+nav_msgs::OccupancyGrid downSizeMap(const nav_msgs::OccupancyGrid& map, int width, int height){
+	nav_msgs::OccupancyGrid resultingMap;
+	for(int i = 0; i < width; i++){
+		for(int j = 0; j < height; j++){
+			
+		}
+	}
+}	
+
 void get_neighbours(int n_array[], int position, int map_width) {
 	n_array[0] = position - map_width - 1;
 	n_array[1] = position - map_width; 
@@ -106,8 +121,8 @@ void get_neighbours(int n_array[], int position, int map_width) {
 }
 
 bool is_frontier_point(const nav_msgs::OccupancyGrid& map, int point, int map_size, int map_width) {
-	// The point under consideration must be known.
-	if(map.data[point] == -1) {
+	// The point under consideration must be unknown. //AANPASSING
+	if(map.data[point] != -1) {
 		return false;
 	}
 	//
@@ -115,8 +130,8 @@ bool is_frontier_point(const nav_msgs::OccupancyGrid& map, int point, int map_si
 	get_neighbours(locations, point, map_width);
 	for(int i = 0; i < 8; i++) {
 		if(locations[i] < map_size && locations[i] >= 0) {
-			// The state in the map is unknown, hence frontier point.
-			if(map.data[locations[i]]== -1) {
+			//At least one of the neighbours is open and known space, hence frontier point //AANPASSING
+			if(map.data[locations[i]] < OCC_THRESHOLD && map.data[locations[i]] >= 0) {
 				return true;
 			}
 		}
