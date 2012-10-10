@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <queue>
+#include <map>
 #include "wavefront_frontier_detection.hpp"
 #include "nav_msgs/OccupancyGrid.h"
 
@@ -11,11 +12,13 @@ const int MAP_OPEN_LIST = 1, MAP_CLOSE_LIST = 2, FRONTIER_OPEN_LIST = 3, FRONTIE
 const int OCC_THRESHOLD = 10;
 
 vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int map_width, int pose) {	
+	
 	vector<vector<int> > frontiers;
 	// Cell state list for map/frontier open/closed
 	int map_size = map_height * map_width;
-	int cell_states[map_size];
-	memset(cell_states, 0, map_size);	
+	ROS_INFO("wfd 1");
+	std::map<int, int> cell_states;
+	ROS_INFO("wfd 2");
 	//
 	queue<int> q_m;	
 	q_m.push(pose);
