@@ -1,20 +1,16 @@
 #include "ros/ros.h"
-#include <cstdlib> // Needed for rand()
+#include <cstdlib>
 #include <ctime>
 #include <queue>
+#include "wavefront_frontier_detection.hpp"
+#include "nav_msgs/OccupancyGrid.h"
 
 using namespace std;
-
-void get_neighbours(int n_array[], int position, int map_width);
-bool is_frontier_point(int occ_grid[], int point, int map_size, int map_width);
-int get_row_from_offset(int offset, int width);
-int get_column_from_offset(int offset, int width);
-vector<vector<int> > wfd(int occ_grid[], int map_height, int map_width, int pose);
 
 const int MAP_OPEN_LIST = 1, MAP_CLOSE_LIST = 2, FRONTIER_OPEN_LIST = 3, FRONTIER_CLOSE_LIST = 4;
 const int OCC_THRESHOLD = 10;
 
-vector<vector<int> > wfd(int occ_grid[], int map_height, int map_width, int pose) {	
+vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int map_width, int pose) {	
 	vector<vector<int> > frontiers;
 	// Cell state list for map/frontier open/closed
 	int map_size = map_height * map_width;
@@ -33,7 +29,7 @@ vector<vector<int> > wfd(int occ_grid[], int map_height, int map_width, int pose
 		// Skip if map_close_list
 		if(cell_states[cur_pos] == MAP_CLOSE_LIST)
 			continue;
-		if(is_frontier_point(occ_grid, cur_pos, map_size, map_width)) {
+		if(is_frontier_point(map, cur_pos, map_size, map_width)) {
 			queue<int> q_f;
 			vector<int> new_frontier;
 			q_f.push(cur_pos);
@@ -46,7 +42,7 @@ vector<vector<int> > wfd(int occ_grid[], int map_height, int map_width, int pose
 				if(cell_states[n_cell] == MAP_CLOSE_LIST || cell_states[n_cell] == FRONTIER_CLOSE_LIST)
 					continue;
 				//
-				if(is_frontier_point(occ_grid, n_cell, map_size, map_width)) {
+				if(is_frontier_point(map, n_cell, map_size, map_width)) {
 					new_frontier.push_back(n_cell);
 					get_neighbours(adj_vector, cur_pos, map_width);			
 					//
@@ -77,7 +73,7 @@ vector<vector<int> > wfd(int occ_grid[], int map_height, int map_width, int pose
 					bool map_open_neighbor = false;
 					for(int j = 0; j < 8; j++) {
 						if(v_neighbours[j] < map_size && v_neighbours[j] >= 0) {
-							if(occ_grid[v_neighbours[j]] < OCC_THRESHOLD) {
+							if(map.data[v_neighbours[j]] < OCC_THRESHOLD) {
 								map_open_neighbor = true;
 								break;
 							}
@@ -106,9 +102,9 @@ void get_neighbours(int n_array[], int position, int map_width) {
 	n_array[7] = position + map_width + 1;
 }
 
-bool is_frontier_point(int occ_grid[], int point, int map_size, int map_width) {
+bool is_frontier_point(const nav_msgs::OccupancyGrid& map, int point, int map_size, int map_width) {
 	// The point under consideration must be known.
-	if(occ_grid[point] == -1) {
+	if(map.data[point] == -1) {
 		return false;
 	}
 	//
@@ -117,7 +113,7 @@ bool is_frontier_point(int occ_grid[], int point, int map_size, int map_width) {
 	for(int i = 0; i < 8; i++) {
 		if(locations[i] < map_size && locations[i] >= 0) {
 			// The state in the map is unknown, hence frontier point.
-			if(occ_grid[locations[i]]== -1) {
+			if(map.data[locations[i]]== -1) {
 				return true;
 			}
 		}

@@ -9,6 +9,7 @@
 #include "tf/message_filter.h"
 #include "message_filters/subscriber.h"
 #include "tf/transform_datatypes.h"
+#include "wavefront_frontier_detection.hpp"
 #include <cstdlib> // Needed for rand()
 #include <ctime> // Needed to seed random number generator with a time value
 
@@ -57,10 +58,22 @@ public:
 			tfListener->lookupTransform("/odom", "/base_link", ros::Time(0),transform);
 			//
 			float resolution = map.info.resolution;
-			int map_size = sizeof(map.data) / sizeof(int);
-			ROS_INFO("Resolution %f, map_w: %d", resolution, (map.info.width * resolution));
-			ROS_INFO("X: %f", transform.getOrigin().x());
-			ROS_INFO("Y: %f", transform.getOrigin().y()); 
+			float x = transform.getOrigin().x() / resolution;
+			float y = transform.getOrigin().y() / resolution;
+			//
+			float map_x = map.info.origin.position.x / resolution;
+			float map_y = map.info.origin.position.y / resolution;
+			//
+			x -= map_x;
+			y -= map_y;
+			ROS_INFO("Index: %f", x + (y * map.info.width));
+			//
+			//for(int i = 0; i < (map.info.width * map.info.height); i++)
+			//{
+			//	if(map.data[i] > -1)
+			//		ROS_INFO("[%d]: %d",i, map.data[i]);
+			//}
+			wfd(map, map.info.height, map.info.width, x + (y * map.info.width));
 		}
 		catch(tf::TransformException ex) {
 			ROS_ERROR("%s", ex.what());
