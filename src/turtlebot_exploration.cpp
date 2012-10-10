@@ -46,7 +46,7 @@ public:
 	}
 	;	
 
-	void mapCallback( const nav_msgs::OccupancyGrid& msg )
+	void mapCallback( const nav_msgs::OccupancyGrid& map )
 	{
 		ROS_INFO("Map callback!!!");
 		tf::StampedTransform transform;
@@ -55,10 +55,11 @@ public:
 			tfListener->waitForTransform("/map", "/odom", ros::Time(0), ros::Duration(3.0));
 			tfListener->lookupTransform("/map", "/odom", ros::Time(0), transform);
 			//
+			float resolution = map.info.resolution;
 			ROS_INFO("X: ");
-			ROS_INFO("%f", transform.getOrigin().x());
+			ROS_INFO("%f", transform.getOrigin().x() * resolution);
 			ROS_INFO("\nY: ");
-			ROS_INFO("%f", transform.getOrigin().y()); 
+			ROS_INFO("%f", transform.getOrigin().y() * resolution); 
 		}
 		catch(tf::TransformException ex) {
 			ROS_ERROR("%s", ex.what());
