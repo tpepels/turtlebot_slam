@@ -33,7 +33,7 @@ public:
 		// Subscribe to the simulated robot's laser scan topic and tell ROS to call
 		// this->commandCallback() whenever a new message is published on that topic
 		//laserSub = nh.subscribe("base_scan", 1, &TurtlebotExploration::commandCallback,this);
-		mapSub = nh.subscribe("map", 1000, &TurtlebotExploration::mapCallback, this);
+		mapSub = nh.subscribe("map", 10, &TurtlebotExploration::mapCallback, this);
 	}
 	;
 
@@ -54,12 +54,13 @@ public:
 		{
 			tfListener->waitForTransform("/map", "/odom", ros::Time(0), ros::Duration(3.0));
 			tfListener->lookupTransform("/map", "/odom", ros::Time(0), transform);
+			tfListener->lookupTransform("/odom", "/base_link", ros::Time(0),transform);
 			//
 			float resolution = map.info.resolution;
-			ROS_INFO("X: ");
-			ROS_INFO("%f", transform.getOrigin().x() * resolution);
-			ROS_INFO("\nY: ");
-			ROS_INFO("%f", transform.getOrigin().y() * resolution); 
+			int map_size = sizeof(map.data) / sizeof(int);
+			ROS_INFO("Resolution %f, map_w: %d", resolution, (map.info.width * resolution));
+			ROS_INFO("X: %f", transform.getOrigin().x());
+			ROS_INFO("Y: %f", transform.getOrigin().y()); 
 		}
 		catch(tf::TransformException ex) {
 			ROS_ERROR("%s", ex.what());
@@ -127,24 +128,6 @@ public:
 	void spin() {
 		ros::Rate rate(10); // Specify the FSM loop rate in Hz
 		while (ros::ok()) { // Keep spinning loop until user presses Ctrl+C
-			// TODO: Either call:
-			//
-			//       - move(0, ROTATE_SPEED_RADPS); // Rotate right
-			//
-			//       or
-			//
-			//       - move(FORWARD_SPEED_MPS, 0); // Move foward
-			//
-			//       depending on the FSM state; also change the FSM state when appropriate
-			/////////////////////// ANSWER CODE BEGIN ///////////////////
-			if (ros::Time::now().toSec() > rotateStartTime.toSec() + rotateDuration.toSec()) {
-				fsm = FSM_MOVE_FORWARD;
-			}
-			if (fsm == FSM_MOVE_FORWARD) {
-				move(FORWARD_SPEED_MPS, 0);
-			} else if (fsm == FSM_ROTATE) {
-				move(0, ROTATE_SPEED_RADPS);
-			}
 			/////////////////////// ANSWER CODE END ///////////////////
 			ros::spinOnce(); // Need to call this function often to allow ROS to process incoming messages
 			rate.sleep(); // Sleep for the rest of the cycle, to enforce the FSM loop rate
