@@ -14,16 +14,18 @@
 
 using namespace std;
 
+
 class TurtlebotExploration {
 
 public:
 	// Construst a new RandomWalk object and hook up this ROS node
 	// to the simulated robot's velocity control and laser topics
-	TurtlebotExploration(ros::NodeHandle& nh) :
+	TurtlebotExploration(ros::NodeHandle& nh, tf::TransformListener& list) :
 			fsm(FSM_MOVE_FORWARD), rotateStartTime(ros::Time::now()), rotateDuration(
 					0.f) {
 		// Initialize random time generator
 		srand(time(NULL));
+		tfListener = &list;
 		// Advertise a new publisher for the simulated robot's velocity command topic
 		// (the second argument indicates that if multiple command messages are in
 		//  the queue to be sent, only the last command will be sent)
@@ -50,12 +52,13 @@ public:
 		tf::StampedTransform transform;
 		try 
 		{
-			listener.lookupTransform("/map", "/odom", ros::Time(0), transform);
-			listener.waitForTransform("/map", "/odom", ros::Time(0), ros::Duration(3.0));
+			tfListener->waitForTransform("/map", "/odom", ros::Time(0), ros::Duration(3.0));
+			tfListener->lookupTransform("/map", "/odom", ros::Time(0), transform);
+			//
 			ROS_INFO("X: ");
-			ROS_INFO("%s", transform.getOrigin().x());
+			ROS_INFO("%f", transform.getOrigin().x());
 			ROS_INFO("\nY: ");
-			ROS_INFO("%s", transform.getOrigin().y()); 
+			ROS_INFO("%f", transform.getOrigin().y()); 
 		}
 		catch(tf::TransformException ex) {
 			ROS_ERROR("%s", ex.what());
@@ -168,13 +171,14 @@ protected:
 	enum FSM fsm; // Finite state machine for the random walk algorithm
 	ros::Time rotateStartTime; // Start time of the rotation
 	ros::Duration rotateDuration; // Duration of the rotation
-	tf::TransformListener listener;
+	tf::TransformListener *tfListener;
 };
 
 int main(int argc, char **argv) {
 	ros::init(argc, argv, "TurtlebotExploration"); // Initiate new ROS node named "random_walk"
 	ros::NodeHandle n;
-	TurtlebotExploration walker(n); // Create new random walk object
+	tf::TransformListener listener;
+	TurtlebotExploration walker(n, listener); // Create new random walk object
 	ROS_INFO("INFO!");
 	walker.spin(); // Execute FSM loop
 	return 0;
