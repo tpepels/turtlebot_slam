@@ -120,13 +120,8 @@ void get_neighbours(int n_array[], int position, int map_width) {
 }
 
 bool is_frontier_point(const nav_msgs::OccupancyGrid& map, int point, int map_size, int map_width) {
-<<<<<<< HEAD
-	// The point under consideration must be unknown. //AANPASSING
-	if(map.data[point] == -1) {
-=======
 	// The point under consideration must be known
 	if(map.data[point] != -1) {
->>>>>>> c9fcc5b0eab5a3440da287c56e52e5a0f4c64bf2
 		return false;
 	}
 	//
@@ -134,14 +129,9 @@ bool is_frontier_point(const nav_msgs::OccupancyGrid& map, int point, int map_si
 	get_neighbours(locations, point, map_width);
 	for(int i = 0; i < 8; i++) {
 		if(locations[i] < map_size && locations[i] >= 0) {
-<<<<<<< HEAD
 			//At least one of the neighbours is open and known space, hence frontier point //AANPASSING
 			//if(map.data[locations[i]] < OCC_THRESHOLD && map.data[locations[i]] >= 0) {
 			if(map.data[locations[i]] == -1) {
-=======
-			//At least one of the neighbours is open and known space, hence frontier point
-			if(map.data[locations[i]] < OCC_THRESHOLD && map.data[locations[i]] >= 0) {
->>>>>>> c9fcc5b0eab5a3440da287c56e52e5a0f4c64bf2
 				return true;
 			}
 		}
