@@ -11,23 +11,25 @@
 #include "tf/transform_datatypes.h"
 #include "wavefront_frontier_detection.hpp"
 #include "sensor_msgs/PointCloud.h"
+#include "move_base_msgs/MoveBaseAction.h"
+#include "actionlib/client/simple_action_client.h"
 #include <cstdlib> // Needed for rand()
 #include <ctime> // Needed to seed random number generator with a time value
 
 using namespace std;
 
-
+typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 class TurtlebotExploration {
 
 public:
 	// Construst a new RandomWalk object and hook up this ROS node
 	// to the simulated robot's velocity control and laser topics
-	TurtlebotExploration(ros::NodeHandle& nh, tf::TransformListener& list) :
-			fsm(FSM_MOVE_FORWARD), rotateStartTime(ros::Time::now()), rotateDuration(
-					0.f) {
+	TurtlebotExploration(ros::NodeHandle& nh) :
+			fsm(FSM_MOVE_FORWARD), rotateStartTime(ros::Time::now()), rotateDuration(0.f) {
 		// Initialize random time generator
 		srand(time(NULL));
-		tfListener = &list;
+		//tfListener = &list;
+		//ac = &mbc;
 		// Advertise a new publisher for the simulated robot's velocity command topic
 		// (the second argument indicates that if multiple command messages are in
 		//  the queue to be sent, only the last command will be sent)
@@ -39,6 +41,11 @@ public:
 		mapSub = nh.subscribe("map", 10, &TurtlebotExploration::mapCallback, this);
 		//
 		frontier_cloud.header.frame_id = "map";
+		//
+		//tell the action client that we want to spin a thread by default
+		
+
+
 	}
 	;
 
@@ -53,45 +60,59 @@ public:
 
 	void mapCallback( const nav_msgs::OccupancyGrid& map )
 	{
-		ROS_INFO("Map callback!!!");
-		tf::StampedTransform transform;
-		try 
-		{
-			tfListener->waitForTransform("/map", "/odom", ros::Time(0), ros::Duration(3.0));
-			tfListener->lookupTransform("/map", "/odom", ros::Time(0), transform);
-			tfListener->lookupTransform("/odom", "/base_link", ros::Time(0),transform);
-			//
-			float resolution = map.info.resolution;
-			ROS_INFO("Resolution: %f, map width: %d, map_height: %d", resolution, map.info.width, map.info.height);
-			float x = transform.getOrigin().x() / resolution;
-			float y = transform.getOrigin().y() / resolution;
-			//
-			float map_x = map.info.origin.position.x / resolution;
-			float map_y = map.info.origin.position.y / resolution;
-			//
-			x -= map_x;
-			y -= map_y;
-			ROS_INFO("Index: %f", x + (y * map.info.width));
-			//
-			//for(int i = 0; i < (map.info.width * map.info.height); i++)
-			//{
-			//	if(map.data[i] > -1)
-			//		ROS_INFO("[%d]: %d",i, map.data[i]);
-			//}
-			vector<int> frontiers = wfd(map, map.info.height, map.info.width, x + (y * map.info.width));
-			ROS_INFO("Found %d frontiers.", frontiers.size());
-			frontier_cloud.points.resize(frontiers.size());
-			for(unsigned int i = 0; i < frontiers.size(); i++) {
-				frontier_cloud.points[i].x = frontiers[i] % map.info.width;
-				frontier_cloud.points[i].y = frontiers[i] / map.info.width;
-				frontier_cloud.points[i].z = 0;
-				ROS_INFO("Frontier: %d, X: %f, Y: %f", frontiers[i], frontier_cloud.points[i].x, frontier_cloud.points[i].y);
-			}
-			frontier_publisher.publish(frontier_cloud);
-			ROS_INFO("published cloud!");
+		//tfListener->waitForTransform("/map", "/odom", ros::Time(0), ros::Duration(3.0));
+		//tfListener->lookupTransform("/map", "/odom", ros::Time(0), transform);
+		//tfListener->lookupTransform("/odom", "/base_link", ros::Time(0),transform);
+		//
+		float resolution = map.info.resolution;
+		//ROS_INFO("Resolution: %f, map width: %d, map_height: %d", resolution, map.info.width, map.info.height);
+		//float x = transform.getOrigin().x() / resolution;
+		//float y = transform.getOrigin().y() / resolution;
+		//
+		float map_x = map.info.origin.position.x / resolution;
+		float map_y = map.info.origin.position.y / resolution;
+		//
+		float x = 0. - map_x;
+		float y = 0. - map_y;
+		//ROS_INFO("Index: %f", x + (y * map.info.width));
+
+		vector<int> frontiers = wfd(map, map.info.height, map.info.width, x + (y * map.info.width));
+		//ROS_INFO("Found %d frontiers.", frontiers.size());
+		frontier_cloud.points.resize(frontiers.size());
+		for(unsigned int i = 0; i < frontiers.size(); i++) {
+			frontier_cloud.points[i].x = ((frontiers[i] % map.info.width) + map_x) * resolution ;
+			frontier_cloud.points[i].y = ((frontiers[i] / map.info.width) +map_y)* resolution;
+			frontier_cloud.points[i].z = 0;
+			// ROS_INFO("Frontier: %d, X: %f, Y: %f", frontiers[i], frontier_cloud.points[i].x, frontier_cloud.points[i].y);
 		}
-		catch(tf::TransformException ex) {
-			ROS_ERROR("%s", ex.what());
+		frontier_publisher.publish(frontier_cloud);
+		ROS_INFO("published cloud!");
+		move_base_msgs::MoveBaseGoal goal;
+		goal.target_pose.header.frame_id = "base_link";
+		goal.target_pose.header.stamp = ros::Time::now();
+		bool at_target = false;
+		while(!at_target) {
+			int frontier = rand() % frontiers.size();
+			goal.target_pose.pose.position.x = frontier_cloud.points[frontier].x;
+			goal.target_pose.pose.position.y = frontier_cloud.points[frontier].y;
+			goal.target_pose.pose.orientation.w = 1.0;
+			ROS_INFO("Navigating to: x: %f y: %f", frontier_cloud.points[frontier].x, frontier_cloud.points[frontier].y);
+			//
+			MoveBaseClient ac("move_base", true);
+			//wait for the action server to come up
+			while(!ac.waitForServer(ros::Duration(5.0))){
+				ROS_INFO("Waiting for the move_base action server to come up");
+			}
+			ac.sendGoal(goal);
+			ac.waitForResult();
+
+			if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
+				at_target = true;
+			  	ROS_INFO("Hooray, the base moved to %f,%f", frontier_cloud.points[frontier].x, frontier_cloud.points[frontier].y );
+			} else {
+			  	ROS_INFO("The base failed to move");
+			}
+
 		}
 	}
 	;
@@ -156,7 +177,7 @@ public:
 	void spin() {
 		ros::Rate rate(10); // Specify the FSM loop rate in Hz
 		while (ros::ok()) { // Keep spinning loop until user presses Ctrl+C
-			/////////////////////// ANSWER CODE END ///////////////////
+			frontier_publisher.publish(frontier_cloud);
 			ros::spinOnce(); // Need to call this function often to allow ROS to process incoming messages
 			rate.sleep(); // Sleep for the rest of the cycle, to enforce the FSM loop rate
 		}
@@ -191,8 +212,7 @@ protected:
 int main(int argc, char **argv) {
 	ros::init(argc, argv, "TurtlebotExploration"); // Initiate new ROS node named "random_walk"
 	ros::NodeHandle n;
-	tf::TransformListener listener;
-	TurtlebotExploration walker(n, listener); // Create new random walk object
+	TurtlebotExploration walker(n); // Create new random walk object
 	ROS_INFO("INFO!");
 	walker.spin(); // Execute FSM loop
 	return 0;
