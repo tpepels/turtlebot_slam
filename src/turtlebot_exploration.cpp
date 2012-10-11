@@ -53,44 +53,37 @@ public:
 
 	void mapCallback( const nav_msgs::OccupancyGrid& map )
 	{
-		ROS_INFO("Map callback!!!");
-		tf::StampedTransform transform;
+		//ROS_INFO("Map callback!!!");
+		//tf::StampedTransform transform;
 		try 
 		{
-			tfListener->waitForTransform("/map", "/odom", ros::Time(0), ros::Duration(3.0));
-			tfListener->lookupTransform("/map", "/odom", ros::Time(0), transform);
-			tfListener->lookupTransform("/odom", "/base_link", ros::Time(0),transform);
+			//tfListener->waitForTransform("/map", "/odom", ros::Time(0), ros::Duration(3.0));
+			//tfListener->lookupTransform("/map", "/odom", ros::Time(0), transform);
+			//tfListener->lookupTransform("/odom", "/base_link", ros::Time(0),transform);
 			//
 			float resolution = map.info.resolution;
-			ROS_INFO("Resolution: %f, map width: %d, map_height: %d", resolution, map.info.width, map.info.height);
+			//ROS_INFO("Resolution: %f, map width: %d, map_height: %d", resolution, map.info.width, map.info.height);
 			//float x = transform.getOrigin().x() / resolution;
 			//float y = transform.getOrigin().y() / resolution;
-			float x = 0.;
-			float y = 0.;
 			//
 			float map_x = map.info.origin.position.x / resolution;
 			float map_y = map.info.origin.position.y / resolution;
 			//
-			x -= map_x;
-			y -= map_y;
-			ROS_INFO("Index: %f", x + (y * map.info.width));
-			//
-			//for(int i = 0; i < (map.info.width * map.info.height); i++)
-			//{
-			//	if(map.data[i] > -1)
-			//		ROS_INFO("[%d]: %d",i, map.data[i]);
-			//}
+			float x = 0. - map_x;
+			float y = 0. - map_y;
+			//ROS_INFO("Index: %f", x + (y * map.info.width));
+
 			vector<int> frontiers = wfd(map, map.info.height, map.info.width, x + (y * map.info.width));
-			ROS_INFO("Found %d frontiers.", frontiers.size());
+			//ROS_INFO("Found %d frontiers.", frontiers.size());
 			frontier_cloud.points.resize(frontiers.size());
 			for(unsigned int i = 0; i < frontiers.size(); i++) {
 				frontier_cloud.points[i].x = ((frontiers[i] % map.info.width) + map_x) * resolution ;
 				frontier_cloud.points[i].y = ((frontiers[i] / map.info.width) +map_y)* resolution;
 				frontier_cloud.points[i].z = 0;
-				ROS_INFO("Frontier: %d, X: %f, Y: %f", frontiers[i], frontier_cloud.points[i].x, frontier_cloud.points[i].y);
+				// ROS_INFO("Frontier: %d, X: %f, Y: %f", frontiers[i], frontier_cloud.points[i].x, frontier_cloud.points[i].y);
 			}
 			frontier_publisher.publish(frontier_cloud);
-			ROS_INFO("published cloud!");
+			// ROS_INFO("published cloud!");
 		}
 		catch(tf::TransformException ex) {
 			ROS_ERROR("%s", ex.what());

@@ -26,10 +26,10 @@ vector<int> wfd(const nav_msgs::OccupancyGrid& map, int map_height, int map_widt
 	//
 	//ROS_INFO("wfd 1");
 	while(!q_m.empty()) {
-		ROS_INFO("wfd 2");
+		//ROS_INFO("wfd 2");
 		int cur_pos = q_m.front();
 		q_m.pop();
-		ROS_INFO("cur_pos: %d, cell_state: %d",cur_pos, cell_states[cur_pos]);
+		//ROS_INFO("cur_pos: %d, cell_state: %d",cur_pos, cell_states[cur_pos]);
 		// Skip if map_close_list
 		if(cell_states[cur_pos] == MAP_CLOSE_LIST)
 			continue;
@@ -49,7 +49,7 @@ vector<int> wfd(const nav_msgs::OccupancyGrid& map, int map_height, int map_widt
 					continue;
 				//
 				if(is_frontier_point(map, n_cell, map_size, map_width)) {
-					ROS_INFO("adding %d to frontiers", n_cell);
+					//ROS_INFO("adding %d to frontiers", n_cell);
 					frontiers.push_back(n_cell);
 					get_neighbours(adj_vector, cur_pos, map_width);			
 					//
