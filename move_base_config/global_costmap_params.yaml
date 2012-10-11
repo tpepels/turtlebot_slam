@@ -10,7 +10,7 @@ global_costmap:
   publish_frequency: 0.0
 
   #We'll use a map served by the map_server to initialize this costmap
-  static_map: true
+  static_map: false
   rolling_window: false
 
   footprint_padding: 0.02
