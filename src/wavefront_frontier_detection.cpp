@@ -53,7 +53,7 @@ vector<int> wfd(const nav_msgs::OccupancyGrid& map, int map_height, int map_widt
 					frontiers.push_back(n_cell);
 					get_neighbours(adj_vector, cur_pos, map_width);			
 					//
-					ROS_INFO("wfd 3.5");
+					//ROS_INFO("wfd 3.5");
 					for(int i = 0; i < 8; i++) {
 						if(adj_vector[i] < map_size && adj_vector[i] >= 0) {
 							if(cell_states[adj_vector[i]] != FRONTIER_OPEN_LIST && 
