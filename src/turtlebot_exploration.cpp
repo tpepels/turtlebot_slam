@@ -63,8 +63,10 @@ public:
 			//
 			float resolution = map.info.resolution;
 			ROS_INFO("Resolution: %f, map width: %d, map_height: %d", resolution, map.info.width, map.info.height);
-			float x = transform.getOrigin().x() / resolution;
-			float y = transform.getOrigin().y() / resolution;
+			//float x = transform.getOrigin().x() / resolution;
+			//float y = transform.getOrigin().y() / resolution;
+			float x = 0.;
+			float y = 0.;
 			//
 			float map_x = map.info.origin.position.x / resolution;
 			float map_y = map.info.origin.position.y / resolution;
@@ -82,8 +84,8 @@ public:
 			ROS_INFO("Found %d frontiers.", frontiers.size());
 			frontier_cloud.points.resize(frontiers.size());
 			for(unsigned int i = 0; i < frontiers.size(); i++) {
-				frontier_cloud.points[i].x = frontiers[i] % map.info.width;
-				frontier_cloud.points[i].y = frontiers[i] / map.info.width;
+				frontier_cloud.points[i].x = ((frontiers[i] % map.info.width) + map_x) * resolution ;
+				frontier_cloud.points[i].y = ((frontiers[i] / map.info.width) +map_y)* resolution;
 				frontier_cloud.points[i].z = 0;
 				ROS_INFO("Frontier: %d, X: %f, Y: %f", frontiers[i], frontier_cloud.points[i].x, frontier_cloud.points[i].y);
 			}
@@ -156,7 +158,7 @@ public:
 	void spin() {
 		ros::Rate rate(10); // Specify the FSM loop rate in Hz
 		while (ros::ok()) { // Keep spinning loop until user presses Ctrl+C
-			/////////////////////// ANSWER CODE END ///////////////////
+			frontier_publisher.publish(frontier_cloud);
 			ros::spinOnce(); // Need to call this function often to allow ROS to process incoming messages
 			rate.sleep(); // Sleep for the rest of the cycle, to enforce the FSM loop rate
 		}
