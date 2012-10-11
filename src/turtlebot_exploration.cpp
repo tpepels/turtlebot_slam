@@ -10,6 +10,7 @@
 #include "message_filters/subscriber.h"
 #include "tf/transform_datatypes.h"
 #include "wavefront_frontier_detection.hpp"
+#include "sensor_msgs/PointCloud.h"
 #include <cstdlib> // Needed for rand()
 #include <ctime> // Needed to seed random number generator with a time value
 
@@ -31,10 +32,13 @@ public:
 		// (the second argument indicates that if multiple command messages are in
 		//  the queue to be sent, only the last command will be sent)
 		commandPub = nh.advertise<geometry_msgs::Twist>("cmd_vel", 1);		
+		frontier_publisher = nh.advertise<sensor_msgs::PointCloud>("frontiers", 1);
 		// Subscribe to the simulated robot's laser scan topic and tell ROS to call
 		// this->commandCallback() whenever a new message is published on that topic
 		//laserSub = nh.subscribe("base_scan", 1, &TurtlebotExploration::commandCallback,this);
 		mapSub = nh.subscribe("map", 10, &TurtlebotExploration::mapCallback, this);
+		//
+		frontier_cloud.header.frame_id = "map";
 	}
 	;
 
@@ -74,7 +78,17 @@ public:
 			//	if(map.data[i] > -1)
 			//		ROS_INFO("[%d]: %d",i, map.data[i]);
 			//}
-			wfd(map, map.info.height, map.info.width, x + (y * map.info.width));
+			vector<int> frontiers = wfd(map, map.info.height, map.info.width, x + (y * map.info.width));
+			ROS_INFO("Found %d frontiers.", frontiers.size());
+			frontier_cloud.points.resize(frontiers.size());
+			for(unsigned int i = 0; i < frontiers.size(); i++) {
+				frontier_cloud.points[i].x = frontiers[i] % map.info.width;
+				frontier_cloud.points[i].y = frontiers[i] / map.info.width;
+				frontier_cloud.points[i].z = 0;
+				ROS_INFO("Frontier: %d, X: %f, Y: %f", frontiers[i], frontier_cloud.points[i].x, frontier_cloud.points[i].y);
+			}
+			frontier_publisher.publish(frontier_cloud);
+			ROS_INFO("published cloud!");
 		}
 		catch(tf::TransformException ex) {
 			ROS_ERROR("%s", ex.what());
@@ -164,6 +178,8 @@ public:
 protected:
 	ros::Publisher commandPub; // Publisher to the simulated robot's velocity command topic
 	ros::Publisher posePublisher;
+	sensor_msgs::PointCloud frontier_cloud;
+	ros::Publisher frontier_publisher;
 	ros::Subscriber mapSub;
 	// ros::Subscriber laserSub; // Subscriber to the simulated robot's laser scan topic
 	enum FSM fsm; // Finite state machine for the random walk algorithm

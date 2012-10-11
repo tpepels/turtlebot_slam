@@ -5,7 +5,7 @@
   <include file="$(find turtlebot_slam)/move_base_config/move_base.xml"/>
   <node pkg="gmapping" type="slam_gmapping" name="gmapping" args="scan:=base_scan">
   	  
-  	  <param name="delta" value="0.5" />
+  	  <param name="delta" value="0.2" />
   </node>
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find turtlebot_slam)/view.vcg" />
   <node pkg="turtlebot_slam" type="turtlebot_exploration" name="turtlebot_exploration" output="screen" />
