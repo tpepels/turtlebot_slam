@@ -11,9 +11,9 @@ using namespace std;
 const int MAP_OPEN_LIST = 1, MAP_CLOSE_LIST = 2, FRONTIER_OPEN_LIST = 3, FRONTIER_CLOSE_LIST = 4;
 const int OCC_THRESHOLD = 10;
 
-vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int map_width, int pose) {	
+vector<int> wfd(const nav_msgs::OccupancyGrid& map, int map_height, int map_width, int pose) {	
 	
-	vector<vector<int> > frontiers;
+	vector<int> frontiers;
 	// Cell state list for map/frontier open/closed
 	int map_size = map_height * map_width;
 	std::map<int, int> cell_states;
@@ -26,16 +26,16 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 	//
 	//ROS_INFO("wfd 1");
 	while(!q_m.empty()) {
-		//ROS_INFO("wfd 2");
+		ROS_INFO("wfd 2");
 		int cur_pos = q_m.front();
 		q_m.pop();
-		//ROS_INFO("cur_pos: %d, cell_state: %d",cur_pos, cell_states[cur_pos]);
+		ROS_INFO("cur_pos: %d, cell_state: %d",cur_pos, cell_states[cur_pos]);
 		// Skip if map_close_list
 		if(cell_states[cur_pos] == MAP_CLOSE_LIST)
 			continue;
 		if(is_frontier_point(map, cur_pos, map_size, map_width)) {
 			queue<int> q_f;
-			vector<int> new_frontier;
+			//vector<int> new_frontier;
 			q_f.push(cur_pos);
 			cell_states[cur_pos] = FRONTIER_OPEN_LIST;
 			// Second BFS
@@ -49,12 +49,15 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 					continue;
 				//
 				if(is_frontier_point(map, n_cell, map_size, map_width)) {
-					new_frontier.push_back(n_cell);
+					ROS_INFO("adding %d to frontiers", n_cell);
+					frontiers.push_back(n_cell);
 					get_neighbours(adj_vector, cur_pos, map_width);			
 					//
 					for(int i = 0; i < 8; i++) {
 						if(adj_vector[i] < map_size && adj_vector[i] >= 0) {
-							if(adj_vector[i] != FRONTIER_OPEN_LIST && adj_vector[i] != FRONTIER_CLOSE_LIST && adj_vector[i] != MAP_CLOSE_LIST) {
+							if(cell_states[adj_vector[i]] != FRONTIER_OPEN_LIST && 
+								cell_states[adj_vector[i]] != FRONTIER_CLOSE_LIST && 
+								cell_states[adj_vector[i]] != MAP_CLOSE_LIST) {
 								//ROS_INFO("wfd 4");
 								q_f.push(adj_vector[i]);
 								cell_states[adj_vector[i]] = FRONTIER_OPEN_LIST;
@@ -64,11 +67,11 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 				}
 				cell_states[n_cell] = FRONTIER_CLOSE_LIST;
 			}
-			frontiers.push_back(new_frontier);
+			// frontiers.push_back(new_frontier);
 			//
 			//ROS_INFO("WFD 4.5");
-			for(vector<int>::iterator it = new_frontier.begin(); it != new_frontier.end(); ++it) {
-				cell_states[*it] = MAP_CLOSE_LIST;
+			for(unsigned int i = 0; i < frontiers.size(); i++) {
+				cell_states[frontiers[i]] = MAP_CLOSE_LIST;
 				//ROS_INFO("WFD 5");
 			}
 		}
@@ -76,7 +79,7 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 		get_neighbours(adj_vector, cur_pos, map_width);
 
 		for (int i = 0; i < 8; ++i) {
-			ROS_INFO("wfd 6");
+			//ROS_INFO("wfd 6");
 			if(adj_vector[i] < map_size && adj_vector[i] >= 0) {
 				if(cell_states[adj_vector[i]] != MAP_OPEN_LIST &&  cell_states[adj_vector[i]] != MAP_CLOSE_LIST) {
 					get_neighbours(v_neighbours, adj_vector[i], map_width);
@@ -96,8 +99,11 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 				}
 			}
 		}
+		//ROS_INFO("wfd 7");
 		cell_states[cur_pos] = MAP_CLOSE_LIST;
+		//ROS_INFO("wfd 7.1");
 	}
+	ROS_INFO("wfd 8");
 	return frontiers;
 }
 
@@ -123,7 +129,7 @@ void get_neighbours(int n_array[], int position, int map_width) {
 
 bool is_frontier_point(const nav_msgs::OccupancyGrid& map, int point, int map_size, int map_width) {
 	// The point under consideration must be unknown. //AANPASSING
-	if(map.data[point] != -1) {
+	if(map.data[point] == -1) {
 		return false;
 	}
 	//
@@ -132,7 +138,8 @@ bool is_frontier_point(const nav_msgs::OccupancyGrid& map, int point, int map_si
 	for(int i = 0; i < 8; i++) {
 		if(locations[i] < map_size && locations[i] >= 0) {
 			//At least one of the neighbours is open and known space, hence frontier point //AANPASSING
-			if(map.data[locations[i]] < OCC_THRESHOLD && map.data[locations[i]] >= 0) {
+			//if(map.data[locations[i]] < OCC_THRESHOLD && map.data[locations[i]] >= 0) {
+			if(map.data[locations[i]] == -1) {
 				return true;
 			}
 		}
