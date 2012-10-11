@@ -58,6 +58,7 @@ public:
 			tfListener->lookupTransform("/odom", "/base_link", ros::Time(0),transform);
 			//
 			float resolution = map.info.resolution;
+			ROS_INFO("Resolution: %f, map width: %d, map_height: %d", resolution, map.info.width, map.info.height);
 			float x = transform.getOrigin().x() / resolution;
 			float y = transform.getOrigin().y() / resolution;
 			//

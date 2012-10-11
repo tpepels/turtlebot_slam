@@ -24,11 +24,12 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 	int adj_vector[8];
 	int v_neighbours[8];
 	//
-	ROS_INFO("wfd 1");
+	//ROS_INFO("wfd 1");
 	while(!q_m.empty()) {
-		ROS_INFO("wfd 2");
+		//ROS_INFO("wfd 2");
 		int cur_pos = q_m.front();
 		q_m.pop();
+		//ROS_INFO("cur_pos: %d, cell_state: %d",cur_pos, cell_states[cur_pos]);
 		// Skip if map_close_list
 		if(cell_states[cur_pos] == MAP_CLOSE_LIST)
 			continue;
@@ -39,8 +40,8 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 			cell_states[cur_pos] = FRONTIER_OPEN_LIST;
 			// Second BFS
 			while(!q_f.empty()) {
-				ROS_INFO("wfd 3");
-				ROS_INFO("Size: %d", q_f.size());
+				//ROS_INFO("wfd 3");
+				//ROS_INFO("Size: %d", q_f.size());
 				int n_cell = q_f.front();
 				q_f.pop();
 				//
@@ -54,7 +55,7 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 					for(int i = 0; i < 8; i++) {
 						if(adj_vector[i] < map_size && adj_vector[i] >= 0) {
 							if(adj_vector[i] != FRONTIER_OPEN_LIST && adj_vector[i] != FRONTIER_CLOSE_LIST && adj_vector[i] != MAP_CLOSE_LIST) {
-								ROS_INFO("wfd 4");
+								//ROS_INFO("wfd 4");
 								q_f.push(adj_vector[i]);
 								cell_states[adj_vector[i]] = FRONTIER_OPEN_LIST;
 							}
@@ -65,10 +66,10 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 			}
 			frontiers.push_back(new_frontier);
 			//
-			ROS_INFO("WFD 4.5");
+			//ROS_INFO("WFD 4.5");
 			for(vector<int>::iterator it = new_frontier.begin(); it != new_frontier.end(); ++it) {
 				cell_states[*it] = MAP_CLOSE_LIST;
-				ROS_INFO("WFD 5");
+				//ROS_INFO("WFD 5");
 			}
 		}
 		//
