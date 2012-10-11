@@ -53,6 +53,7 @@ vector<int> wfd(const nav_msgs::OccupancyGrid& map, int map_height, int map_widt
 					frontiers.push_back(n_cell);
 					get_neighbours(adj_vector, cur_pos, map_width);			
 					//
+					ROS_INFO("wfd 3.5");
 					for(int i = 0; i < 8; i++) {
 						if(adj_vector[i] < map_size && adj_vector[i] >= 0) {
 							if(cell_states[adj_vector[i]] != FRONTIER_OPEN_LIST && 
@@ -107,15 +108,6 @@ vector<int> wfd(const nav_msgs::OccupancyGrid& map, int map_height, int map_widt
 	return frontiers;
 }
 
-nav_msgs::OccupancyGrid downSizeMap(const nav_msgs::OccupancyGrid& map, int width, int height){
-	nav_msgs::OccupancyGrid resultingMap;
-	for(int i = 0; i < width; i++){
-		for(int j = 0; j < height; j++){
-			
-		}
-	}
-}	
-
 void get_neighbours(int n_array[], int position, int map_width) {
 	n_array[0] = position - map_width - 1;
 	n_array[1] = position - map_width; 
@@ -128,8 +120,13 @@ void get_neighbours(int n_array[], int position, int map_width) {
 }
 
 bool is_frontier_point(const nav_msgs::OccupancyGrid& map, int point, int map_size, int map_width) {
+<<<<<<< HEAD
 	// The point under consideration must be unknown. //AANPASSING
 	if(map.data[point] == -1) {
+=======
+	// The point under consideration must be known
+	if(map.data[point] != -1) {
+>>>>>>> c9fcc5b0eab5a3440da287c56e52e5a0f4c64bf2
 		return false;
 	}
 	//
@@ -137,9 +134,14 @@ bool is_frontier_point(const nav_msgs::OccupancyGrid& map, int point, int map_si
 	get_neighbours(locations, point, map_width);
 	for(int i = 0; i < 8; i++) {
 		if(locations[i] < map_size && locations[i] >= 0) {
+<<<<<<< HEAD
 			//At least one of the neighbours is open and known space, hence frontier point //AANPASSING
 			//if(map.data[locations[i]] < OCC_THRESHOLD && map.data[locations[i]] >= 0) {
 			if(map.data[locations[i]] == -1) {
+=======
+			//At least one of the neighbours is open and known space, hence frontier point
+			if(map.data[locations[i]] < OCC_THRESHOLD && map.data[locations[i]] >= 0) {
+>>>>>>> c9fcc5b0eab5a3440da287c56e52e5a0f4c64bf2
 				return true;
 			}
 		}
