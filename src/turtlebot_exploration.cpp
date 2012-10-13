@@ -127,7 +127,7 @@ public:
 
 			if(ac.getState() == actionlib::SimpleClientGoalState::SUCCEEDED) {
 				at_target = true;
-			  	ROS_INFO("Hooray, the base moved to %f,%f", frontier_cloud.points[frontier].x, frontier_cloud.points[frontier].y );
+			  	ROS_INFO("Hooray, the base moved to %f,%f", goal.target_pose.pose.position.x, goal.target_pose.pose.position.y);
 			} else {
 			  	ROS_INFO("The base failed to move");
 			  	attempts++;
