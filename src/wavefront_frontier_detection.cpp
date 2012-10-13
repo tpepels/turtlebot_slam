@@ -10,6 +10,7 @@ using namespace std;
 
 const int MAP_OPEN_LIST = 1, MAP_CLOSE_LIST = 2, FRONTIER_OPEN_LIST = 3, FRONTIER_CLOSE_LIST = 4;
 const int OCC_THRESHOLD = 10;
+const int N_S = 24;
 
 vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int map_width, int pose) {	
 	
@@ -21,8 +22,8 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 	queue<int> q_m;	
 	q_m.push(pose);
 	cell_states[pose] = MAP_OPEN_LIST;
-	int adj_vector[8];
-	int v_neighbours[8];
+	int adj_vector[N_S];
+	int v_neighbours[N_S];
 	//
 	//ROS_INFO("wfd 1");
 	while(!q_m.empty()) {
@@ -54,7 +55,7 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 					get_neighbours(adj_vector, cur_pos, map_width);			
 					//
 					//ROS_INFO("wfd 3.5");
-					for(int i = 0; i < 8; i++) {
+					for(int i = 0; i < N_S; i++) {
 						if(adj_vector[i] < map_size && adj_vector[i] >= 0) {
 							if(cell_states[adj_vector[i]] != FRONTIER_OPEN_LIST && 
 								cell_states[adj_vector[i]] != FRONTIER_CLOSE_LIST && 
@@ -79,13 +80,13 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 		//
 		get_neighbours(adj_vector, cur_pos, map_width);
 
-		for (int i = 0; i < 8; ++i) {
+		for (int i = 0; i < N_S; ++i) {
 			//ROS_INFO("wfd 6");
 			if(adj_vector[i] < map_size && adj_vector[i] >= 0) {
 				if(cell_states[adj_vector[i]] != MAP_OPEN_LIST &&  cell_states[adj_vector[i]] != MAP_CLOSE_LIST) {
 					get_neighbours(v_neighbours, adj_vector[i], map_width);
 					bool map_open_neighbor = false;
-					for(int j = 0; j < 8; j++) {
+					for(int j = 0; j < N_S; j++) {
 						if(v_neighbours[j] < map_size && v_neighbours[j] >= 0) {
 							if(map.data[v_neighbours[j]] < OCC_THRESHOLD && map.data[v_neighbours[j]] >= 0) { //>= 0 AANPASSING
 								map_open_neighbor = true;
@@ -108,7 +109,7 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 	return frontiers;
 }
 
-void get_neighbours(int n_array[], int position, int map_width) {
+void get_small_neighbours(int n_array[], int position, int map_width) {
 	n_array[0] = position - map_width - 1;
 	n_array[1] = position - map_width; 
 	n_array[2] = position - map_width + 1; 
@@ -119,19 +120,55 @@ void get_neighbours(int n_array[], int position, int map_width) {
 	n_array[7] = position + map_width + 1;
 }
 
+void get_neighbours(int n_array[], int position, int map_width) {
+	n_array[0] = position - map_width - 1;
+	n_array[1] = position - map_width; 
+	n_array[2] = position - map_width + 1; 
+	n_array[3] = position - 1;
+	n_array[4] = position + 1;
+	n_array[5] = position + map_width - 1;
+	n_array[6] = position + map_width;
+	n_array[7] = position + map_width + 1;
+
+	n_array[8] = position - (map_width * 2) - 2;
+	n_array[9] = position - (map_width * 2) - 1; 
+	n_array[10] = position - (map_width * 2); 
+	n_array[11] = position - (map_width * 2) + 1;
+	n_array[12] = position - (map_width * 2) + 2;
+	n_array[13] = position - 2;
+	n_array[14] = position + 2;
+	n_array[15] = position + (map_width * 2) - 2;
+	n_array[16] = position + (map_width * 2) - 1; 
+	n_array[17] = position + (map_width * 2); 
+	n_array[18] = position + (map_width * 2) + 1;
+	n_array[19] = position + (map_width * 2) + 2;
+	n_array[20] = position + (map_width) + 2;
+	n_array[21] = position + (map_width) - 2;
+	n_array[22] = position - (map_width) + 2;
+	n_array[23] = position - (map_width) - 2;
+}
+
+
+const int MIN_FOUND = 1;
 bool is_frontier_point(const nav_msgs::OccupancyGrid& map, int point, int map_size, int map_width) {
 	// The point under consideration must be known
 	if(map.data[point] != 0) {
 		return false;
 	}
 	//
-	int locations[8]; 
+	int locations[N_S]; 
 	get_neighbours(locations, point, map_width);
-	for(int i = 0; i < 8; i++) {
+	int found = 0;
+	for(int i = 0; i < N_S; i++) {
 		if(locations[i] < map_size && locations[i] >= 0) {
-			//At least one of the neighbours is open and known space, hence frontier point //AANPASSING
+			if(map.data[locations[i]] == 100) {
+				return false;
+			}
+			//At least one of the neighbours is open and known space, hence frontier point
 			if(map.data[locations[i]] == -1) {
-				return true;
+				found++;
+				if(found == MIN_FOUND) 
+					return true;
 			}
 		}
 	}
