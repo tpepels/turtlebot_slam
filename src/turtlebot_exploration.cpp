@@ -50,6 +50,7 @@ public:
 		msg.linear.x = linearVelMPS;
 		msg.angular.z = angularVelRadPS;
 		commandPub.publish(msg);
+		ros::spinOnce();
 	}
 	;	
 
@@ -143,6 +144,7 @@ public:
 		ros::Rate rate(10); // Specify the FSM loop rate in Hz
 		while (ros::ok()) { // Keep spinning loop until user presses Ctrl+C
 			frontier_publisher.publish(frontier_cloud);
+			move(0, 3.14);
 			ros::spinOnce(); // Need to call this function often to allow ROS to process incoming messages
 			rate.sleep(); // Sleep for the rest of the cycle, to enforce the FSM loop rate
 		}

@@ -9,9 +9,9 @@ TrajectoryPlannerROS:
   acc_lim_y: 0.50
 
   holonomic_robot: false
-  yaw_goal_tolerance: 0.3
-  xy_goal_tolerance: 0.5
-  goal_distance_bias: 0.8
+  yaw_goal_tolerance: 0.5
+  xy_goal_tolerance: 1.
+  goal_distance_bias: 0.5
   path_distance_bias: 0.6
   sim_time: 1.5
   heading_lookahead: 0.325
