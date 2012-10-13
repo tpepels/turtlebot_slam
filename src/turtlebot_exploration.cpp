@@ -105,7 +105,13 @@ public:
 		//
 		bool at_target = false;
 		int attempts = 0;
-		while(!at_target && attempts < 5) {
+		while(!at_target) {
+			if(attempts == 5){
+				largest_frontier_i = (rand() % frontiers.size());
+				attempts = 0;
+				at_target = false;
+				continue;
+			}
 			attempts++;
 			// Get a random point on the largest frontier.
 			ROS_INFO("Largest frontier index: %d, size: %d, number of frontiers: %d, largest_frontier_size: %d", 
