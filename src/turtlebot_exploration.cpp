@@ -52,7 +52,12 @@ public:
 		commandPub.publish(msg);
 		ros::spinOnce();
 	}
-	;	
+	;
+
+	float getDistance(float x1, float x2, float y1, float y2)
+	{
+		return sqrt(pow((x1-x2), 2.) + pow((y1 - y2), 2.);
+	}
 
 	void mapCallback( const nav_msgs::OccupancyGrid& map )
 	{
@@ -74,15 +79,24 @@ public:
 
 		vector<vector<int> > frontiers = wfd(map, map.info.height, map.info.width, x + (y * map.info.width));
 		int num_points = 0, largest_frontier_i = 0, largest_frontier_size = 0;
+		int closest_frontier = 0;
+		float closest_frontier_distance = 0, distance = 0;
 		for(int i = 0; i < frontiers.size(); i++) {
 			// Find the largest frontier.
-			if(frontiers[i].size() > largest_frontier_size) {
-				largest_frontier_size = frontiers[i].size();
-				largest_frontier_i = i;
-			}
+			//if(frontiers[i].size() > largest_frontier_size) {
+			//	largest_frontier_size = frontiers[i].size();
+			//	largest_frontier_i = i;
+			//}
 
 			for(int j = 0; j < frontiers[i].size(); j++) {
 				num_points++;
+				// Find the closest frontier.
+				distance = getDistance(((frontiers[i][j] % map.info.width) + map_x) * resolution, transform.getOrigin().x,
+					((frontiers[i][j] / map.info.width) + map_y) * resolution, transform.getOrigin().y);
+				if(distance > .3 && distance < closest_frontier_distance) {
+					closest_frontier_distance = distance;
+					closest_frontier = frontiers[i][j];
+				}
 			}
 		}
 
@@ -106,18 +120,19 @@ public:
 		//
 		bool at_target = false;
 		int attempts = 0;
+		int frontier = closest_frontier;
 		while(!at_target && attempts < 5) {
 			if(attempts > 0){
 				largest_frontier_i = (rand() % frontiers.size());
 				largest_frontier_size = frontiers[largest_frontier_i].size();
+				frontier = frontiers[largest_frontier_i][rand() % largest_frontier_size];
 				at_target = false;
 			}
 			attempts++;
 			// Get a random point on the largest frontier.
-			ROS_INFO("Largest frontier index: %d, size: %d, number of frontiers: %d, largest_frontier_size: %d", 
-				largest_frontier_i, largest_frontier_size, frontiers.size(), largest_frontier_size);
+			//ROS_INFO("Largest frontier index: %d, size: %d, number of frontiers: %d, largest_frontier_size: %d", 
+			//	largest_frontier_i, largest_frontier_size, frontiers.size(), largest_frontier_size);
 			//
-			int frontier = frontiers[largest_frontier_i][rand() % largest_frontier_size];
 			ROS_INFO("Frontier index: %d, frontier_point: %d", largest_frontier_i, frontier);			
 			goal.target_pose.pose.position.x = ((frontier % map.info.width) + map_x) * resolution;
 			goal.target_pose.pose.position.y = ((frontier / map.info.width) + map_y) * resolution;
