@@ -16,9 +16,9 @@ local_costmap:
   #centered at the robot
   static_map: false
   rolling_window: true
-  width: 1.5
-  height: 1.5
+  width: 4.0
+  height: 4.0
   resolution: 0.1
-  #origin_x: 0.0
-  #origin_y: 0.0
+  origin_x: 0.0
+  origin_y: 0.0
   transform_tolerance: 0.5
