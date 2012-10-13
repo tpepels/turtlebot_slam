@@ -106,12 +106,11 @@ public:
 		//
 		bool at_target = false;
 		int attempts = 0;
-		while(!at_target) {
-			if(attempts == 5){
+		while(!at_target && attempts < 5) {
+			if(attempts > 0){
 				largest_frontier_i = (rand() % frontiers.size());
-				attempts = 0;
+				largest_frontier_size = frontiers[largest_frontier_i].size();
 				at_target = false;
-				continue;
 			}
 			attempts++;
 			// Get a random point on the largest frontier.
