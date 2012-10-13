@@ -10,7 +10,7 @@ local_costmap:
 
   #Set the update and publish frequency of the costmap
   update_frequency: 5.0
-  publish_frequency: 5.0
+  publish_frequency: 1.0
 
   #We'll configure this costmap to be a rolling window... meaning it is always
   #centered at the robot
@@ -18,7 +18,7 @@ local_costmap:
   rolling_window: true
   width: 4.0
   height: 4.0
-  resolution: 0.1
+  resolution: 0.05
   origin_x: 0.0
   origin_y: 0.0
   transform_tolerance: 0.5
