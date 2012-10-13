@@ -56,4 +56,4 @@ define turtlebot position
   bitmap "robot.png"
 )
 
-turtlebot( pose [1.612 0.863 0.000 129.656] color "red")
+turtlebot( pose [2.044 3.827 0.000 -170.133] color "red")

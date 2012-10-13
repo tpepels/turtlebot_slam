@@ -100,12 +100,13 @@ public:
 		ROS_INFO("published cloud!");
 		//
 		move_base_msgs::MoveBaseGoal goal;
-		goal.target_pose.header.frame_id = "base_link";
+		goal.target_pose.header.frame_id = "map";
 		goal.target_pose.header.stamp = ros::Time::now();
 		//
 		bool at_target = false;
 		int attempts = 0;
 		while(!at_target && attempts < 5) {
+			attempts++;
 			// Get a random point on the largest frontier.
 			ROS_INFO("Largest frontier index: %d, size: %d, number of frontiers: %d, largest_frontier_size: %d", 
 				largest_frontier_i, largest_frontier_size, frontiers.size(), largest_frontier_size);
@@ -130,7 +131,6 @@ public:
 			  	ROS_INFO("Hooray, the base moved to %f,%f", goal.target_pose.pose.position.x, goal.target_pose.pose.position.y);
 			} else {
 			  	ROS_INFO("The base failed to move");
-			  	attempts++;
 			}
 		}
 	}

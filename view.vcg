@@ -1,7 +1,7 @@
 Background\ ColorB=0
 Background\ ColorG=0
 Background\ ColorR=0
-Camera\ Config=1.4198 1.4404 11.3183 1.25059 1.52086 1.19209e-07
+Camera\ Config=1.5398 1.8554 9.66986 -1.91593 1.82312 1.19209e-07
 Camera\ Type=rviz::XYOrbitViewController
 Fixed\ Frame=/map
 Global\ Path.Alpha=1
@@ -10,6 +10,11 @@ Global\ Path.ColorG=0
 Global\ Path.ColorR=1
 Global\ Path.Enabled=1
 Global\ Path.Topic=/move_base_node/TrajectoryPlannerROS/global_plan
+Goal.Axes\ Length=0.2
+Goal.Axes\ Radius=0.1
+Goal.Enabled=1
+Goal.Shape=1
+Goal.Topic=/move_base_node/current_goal
 Grid.Alpha=0.5
 Grid.Cell\ Size=1
 Grid.ColorB=0.5
@@ -29,8 +34,14 @@ GridCells.Alpha=1
 GridCells.ColorB=0
 GridCells.ColorG=1
 GridCells.ColorR=0.1
-GridCells.Enabled=1
+GridCells.Enabled=0
 GridCells.Topic=/move_base_node/global_costmap/obstacles
+GridCells2.Alpha=1
+GridCells2.ColorB=0
+GridCells2.ColorG=1
+GridCells2.ColorR=0.1
+GridCells2.Enabled=0
+GridCells2.Topic=/move_base_node/local_costmap/obstacles
 Inflated\ Obstacles.Alpha=1
 Inflated\ Obstacles.ColorB=1
 Inflated\ Obstacles.ColorG=0.729412
@@ -113,7 +124,7 @@ Pose\ Array.Enabled=1
 Pose\ Array.Topic=/particlecloud
 Property\ Grid\ Splitter=564,78
 Property\ Grid\ State=expanded=.Global Options;splitterratio=0.5
-QMainWindow=000000ff00000000fd00000003000000000000016d000002d4fc0200000001fb000000100044006900730070006c0061007900730100000034000002d4000000ee00ffffff000000010000012a000001b3fc0200000003fb0000001e0054006f006f006c002000500072006f007000650072007400690065007300000000340000006f0000006700fffffffb0000000a00560069006500770073000000003400000114000000bb00fffffffb0000001200530065006c0065006300740069006f006e0000000034000001b30000006700ffffff00000003000003340000003efc0100000001fb0000000800540069006d00650100000000000003340000022600ffffff000001c1000002d400000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+QMainWindow=000000ff00000000fd00000003000000000000011d000002d4fc0200000001fb000000100044006900730070006c0061007900730100000034000002d4000000ee00ffffff000000010000012a000001b3fc0200000003fb0000001e0054006f006f006c002000500072006f007000650072007400690065007300000000340000006f0000006700fffffffb0000000a00560069006500770073000000003400000114000000bb00fffffffb0000001200530065006c0065006300740069006f006e0000000034000001b30000006700ffffff00000003000003220000003efc0100000001fb0000000800540069006d00650100000000000003220000022600ffffff000001ff000002d400000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
 Robot\ Model.Alpha=1
 Robot\ Model.Collision\ Enabled=0
 Robot\ Model.Enabled=1
@@ -128,7 +139,7 @@ Robot_Base.ColorR=0.333333
 Robot_Base.Enabled=1
 Robot_Base.Topic=/move_base_node/local_costmap/robot_footprint
 TF.All\ Enabled=1
-TF.Enabled=1
+TF.Enabled=0
 TF.Frame\ Timeout=15
 TF.Marker\ Scale=1
 TF.Show\ Arrows=1
@@ -138,6 +149,11 @@ TF.Update\ Interval=0
 Target\ Frame=<Fixed Frame>
 Tool\ 2D\ Nav\ GoalTopic=move_base_simple/goal
 Tool\ 2D\ Pose\ EstimateTopic=initialpose
+target.Axes\ Length=0.1
+target.Axes\ Radius=0.1
+target.Enabled=1
+target.Shape=1
+target.Topic=/move_base_simple/goal
 [Display0]
 ClassName=rviz::LaserScanDisplay
 Name=Laser Scan
@@ -150,6 +166,15 @@ Name=Global Path
 [Display11]
 ClassName=rviz::GridCellsDisplay
 Name=GridCells
+[Display12]
+ClassName=rviz::GridCellsDisplay
+Name=GridCells2
+[Display13]
+ClassName=rviz::PoseDisplay
+Name=target
+[Display14]
+ClassName=rviz::PoseDisplay
+Name=Goal
 [Display2]
 ClassName=rviz::PoseArrayDisplay
 Name=Pose Array
@@ -174,14 +199,8 @@ Name=PointCloud
 [Display9]
 ClassName=rviz::PolygonDisplay
 Name=Robot_Base
-[TF.Frames.]
-base_footprint.Enabled=1
-base_laser_link.Enabled=1
-base_link.Enabled=1
-map.Enabled=1
-odom.Enabled=1
 [Window]
 Height=890
-Width=840
-X=-1
+Width=822
+X=-2
 Y=55
