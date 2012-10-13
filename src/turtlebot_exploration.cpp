@@ -41,11 +41,6 @@ public:
 		mapSub = nh.subscribe("map", 10, &TurtlebotExploration::mapCallback, this);
 		//
 		frontier_cloud.header.frame_id = "map";
-		//
-		//tell the action client that we want to spin a thread by default
-		
-
-
 	}
 	;
 
@@ -76,27 +71,51 @@ public:
 		float y = 0. - map_y;
 		//ROS_INFO("Index: %f", x + (y * map.info.width));
 
-		vector<int> frontiers = wfd(map, map.info.height, map.info.width, x + (y * map.info.width));
+		vector<vector<int> > frontiers = wfd(map, map.info.height, map.info.width, x + (y * map.info.width));
+		int num_points = 0, largest_frontier_i = 0, largest_frontier_size = 0;
+		for(int i = 0; i < frontiers.size(); i++) {
+			// Find the largest frontier.
+			if(frontiers[i].size() > largest_frontier_size) {
+				largest_frontier_size = frontiers[i].size();
+				largest_frontier_i = i;
+			}
+
+			for(int j = 0; j < frontiers[i].size(); j++) {
+				num_points++;
+			}
+		}
+
 		//ROS_INFO("Found %d frontiers.", frontiers.size());
-		frontier_cloud.points.resize(frontiers.size());
-		for(unsigned int i = 0; i < frontiers.size(); i++) {
-			frontier_cloud.points[i].x = ((frontiers[i] % map.info.width) + map_x) * resolution ;
-			frontier_cloud.points[i].y = ((frontiers[i] / map.info.width) +map_y)* resolution;
-			frontier_cloud.points[i].z = 0;
-			// ROS_INFO("Frontier: %d, X: %f, Y: %f", frontiers[i], frontier_cloud.points[i].x, frontier_cloud.points[i].y);
+		frontier_cloud.points.resize(num_points);
+		int pointI = 0;
+		for(int i = 0; i < frontiers.size(); i++) {
+			for(int j = 0; j < frontiers[i].size(); j++) {
+				frontier_cloud.points[pointI].x = ((frontiers[i][j] % map.info.width) + map_x) * resolution ;
+				frontier_cloud.points[pointI].y = ((frontiers[i][j] / map.info.width) + map_y) * resolution;
+				frontier_cloud.points[pointI].z = 0;
+				pointI++;
+			}
 		}
 		frontier_publisher.publish(frontier_cloud);
 		ROS_INFO("published cloud!");
+		//
 		move_base_msgs::MoveBaseGoal goal;
 		goal.target_pose.header.frame_id = "base_link";
 		goal.target_pose.header.stamp = ros::Time::now();
+		//
 		bool at_target = false;
-		while(!at_target) {
-			int frontier = rand() % frontiers.size();
-			goal.target_pose.pose.position.x = frontier_cloud.points[frontier].x;
-			goal.target_pose.pose.position.y = frontier_cloud.points[frontier].y;
+		int attempts = 0;
+		while(!at_target && attempts < 5) {
+			// Get a random point on the largest frontier.
+			ROS_INFO("Largest frontier index: %d, size: %d, number of frontiers: %d, largest_frontier_size: %d", 
+				largest_frontier_i, largest_frontier_size, frontiers.size(), largest_frontier_size);
+			//
+			int frontier = frontiers[largest_frontier_i][rand() % largest_frontier_size];
+			ROS_INFO("Frontier index: %d, frontier_point: %d", largest_frontier_i, frontier);			
+			goal.target_pose.pose.position.x = ((frontier % map.info.width) + map_x) * resolution;
+			goal.target_pose.pose.position.y = ((frontier / map.info.width) + map_y) * resolution;
 			goal.target_pose.pose.orientation.w = 1.0;
-			ROS_INFO("Navigating to: x: %f y: %f", frontier_cloud.points[frontier].x, frontier_cloud.points[frontier].y);
+			ROS_INFO("Navigating to: x: %f y: %f", goal.target_pose.pose.position.x, goal.target_pose.pose.position.y);
 			//
 			MoveBaseClient ac("move_base", true);
 			//wait for the action server to come up
@@ -111,62 +130,8 @@ public:
 			  	ROS_INFO("Hooray, the base moved to %f,%f", frontier_cloud.points[frontier].x, frontier_cloud.points[frontier].y );
 			} else {
 			  	ROS_INFO("The base failed to move");
+			  	attempts++;
 			}
-
-		}
-	}
-	;
-
-	// Process the incoming laser scan message
-	void commandCallback(const sensor_msgs::LaserScan::ConstPtr& msg) {
-		if (fsm == FSM_MOVE_FORWARD) {
-			// Compute the average range value between MIN_SCAN_ANGLE and MAX_SCAN_ANGLE
-			//
-			// NOTE: ideally, the following loop should have additional checks to ensure
-			//       that indices are not out of bounds, by computing:
-			//
-			//       - currAngle = msg->angle_min + msg->angle_increment*currIndex
-			//
-			//       and then ensuring that currAngle <= msg->angle_max
-			unsigned int minIndex = ceil(
-					(MIN_SCAN_ANGLE_RAD - msg->angle_min)
-							/ msg->angle_increment);
-			unsigned int maxIndex = ceil(
-					(MAX_SCAN_ANGLE_RAD - msg->angle_min)
-							/ msg->angle_increment);
-			float closestRange = msg->ranges[minIndex];
-			for (unsigned int currIndex = minIndex + 1; currIndex < maxIndex;
-					currIndex++) {
-				if (msg->ranges[currIndex] < closestRange) {
-					closestRange = msg->ranges[currIndex];
-				}
-			}
-			ROS_INFO_STREAM("Range: " << closestRange);
-			// TODO: if range is smaller than PROXIMITY_RANGE_M, update fsm and rotateStartTime,
-			//       and also choose a reasonable rotateDuration (keeping in mind of the value
-			//       of ROTATE_SPEED_RADPS)
-			//
-			// HINT: you can obtain the current time by calling:
-			//
-			//       - ros::Time::now()
-			//
-			// HINT: you can set a ros::Duration by calling:
-			//
-			//       - ros::Duration(DURATION_IN_SECONDS_FLOATING_POINT)
-			//
-			// HINT: you can generate a random number between 0 and 99 by calling:
-			//
-			//       - rand() % 100
-			//
-			//       see http://www.cplusplus.com/reference/clibrary/cstdlib/rand/ for more details
-
-			/////////////////////// ANSWER CODE BEGIN ///////////////////
-			if (closestRange < PROXIMITY_RANGE_M) {
-				fsm = FSM_ROTATE;
-				rotateStartTime = ros::Time::now();
-				rotateDuration = ros::Duration((rand() % 100) / ROTATE_SPEED_RADPS * 30);
-			}
-			/////////////////////// ANSWER CODE END ///////////////////
 		}
 	}
 	;

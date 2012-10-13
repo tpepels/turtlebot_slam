@@ -1,4 +1,5 @@
 <launch>
+  <param name="/use_sim_time" value="true" />
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find turtlebot_slam)/view.vcg" />
   <node pkg="stage" type="stageros" name="stageros" args="$(find turtlebot_slam)/world/swarmlab_single_turtle.world" respawn="false">
   	<param name="base_watchdog_timeout" value="1."/>
@@ -6,8 +7,8 @@
   <include file="$(find turtlebot_slam)/move_base_config/move_base.xml"/>
   <node pkg="gmapping" type="slam_gmapping" name="gmapping" args="scan:=base_scan">
   	  
-  	  <param name="delta" value="0.1" />
+  	  <param name="delta" value="0.05" />
   </node>
   
-  <node pkg="turtlebot_slam" type="turtlebot_exploration" name="turtlebot_exploration" />
+  <node pkg="turtlebot_slam" type="turtlebot_exploration" name="turtlebot_exploration" output="screen" />
 </launch>

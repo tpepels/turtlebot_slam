@@ -11,9 +11,9 @@ using namespace std;
 const int MAP_OPEN_LIST = 1, MAP_CLOSE_LIST = 2, FRONTIER_OPEN_LIST = 3, FRONTIER_CLOSE_LIST = 4;
 const int OCC_THRESHOLD = 10;
 
-vector<int> wfd(const nav_msgs::OccupancyGrid& map, int map_height, int map_width, int pose) {	
+vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int map_width, int pose) {	
 	
-	vector<int> frontiers;
+	vector<vector<int> > frontiers;
 	// Cell state list for map/frontier open/closed
 	int map_size = map_height * map_width;
 	std::map<int, int> cell_states;
@@ -35,7 +35,7 @@ vector<int> wfd(const nav_msgs::OccupancyGrid& map, int map_height, int map_widt
 			continue;
 		if(is_frontier_point(map, cur_pos, map_size, map_width)) {
 			queue<int> q_f;
-			//vector<int> new_frontier;
+			vector<int> new_frontier;
 			q_f.push(cur_pos);
 			cell_states[cur_pos] = FRONTIER_OPEN_LIST;
 			// Second BFS
@@ -50,7 +50,7 @@ vector<int> wfd(const nav_msgs::OccupancyGrid& map, int map_height, int map_widt
 				//
 				if(is_frontier_point(map, n_cell, map_size, map_width)) {
 					//ROS_INFO("adding %d to frontiers", n_cell);
-					frontiers.push_back(n_cell);
+					new_frontier.push_back(n_cell);
 					get_neighbours(adj_vector, cur_pos, map_width);			
 					//
 					//ROS_INFO("wfd 3.5");
@@ -68,11 +68,11 @@ vector<int> wfd(const nav_msgs::OccupancyGrid& map, int map_height, int map_widt
 				}
 				cell_states[n_cell] = FRONTIER_CLOSE_LIST;
 			}
-			// frontiers.push_back(new_frontier);
+			frontiers.push_back(new_frontier);
 			//
 			//ROS_INFO("WFD 4.5");
-			for(unsigned int i = 0; i < frontiers.size(); i++) {
-				cell_states[frontiers[i]] = MAP_CLOSE_LIST;
+			for(unsigned int i = 0; i < new_frontier.size(); i++) {
+				cell_states[new_frontier[i]] = MAP_CLOSE_LIST;
 				//ROS_INFO("WFD 5");
 			}
 		}
@@ -131,7 +131,7 @@ bool is_frontier_point(const nav_msgs::OccupancyGrid& map, int point, int map_si
 		if(locations[i] < map_size && locations[i] >= 0) {
 			//At least one of the neighbours is open and known space, hence frontier point //AANPASSING
 			//if(map.data[locations[i]] < OCC_THRESHOLD && map.data[locations[i]] >= 0) {
-			if(map.data[locations[i]] == -1) {
+			if(map.data[locations[i]] == 0) {
 				return true;
 			}
 		}
