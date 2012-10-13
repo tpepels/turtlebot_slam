@@ -24,12 +24,11 @@ class TurtlebotExploration {
 public:
 	// Construst a new RandomWalk object and hook up this ROS node
 	// to the simulated robot's velocity control and laser topics
-	TurtlebotExploration(ros::NodeHandle& nh) :
+	TurtlebotExploration(ros::NodeHandle& nh, tf::TransformListener& list) :
 			fsm(FSM_MOVE_FORWARD), rotateStartTime(ros::Time::now()), rotateDuration(0.f) {
 		// Initialize random time generator
 		srand(time(NULL));
-		//tfListener = &list;
-		//ac = &mbc;
+		tfListener = &list;
 		// Advertise a new publisher for the simulated robot's velocity command topic
 		// (the second argument indicates that if multiple command messages are in
 		//  the queue to be sent, only the last command will be sent)
@@ -61,14 +60,13 @@ public:
 
 	void mapCallback( const nav_msgs::OccupancyGrid& map )
 	{
-		//tfListener->waitForTransform("/map", "/odom", ros::Time(0), ros::Duration(3.0));
-		//tfListener->lookupTransform("/map", "/odom", ros::Time(0), transform);
-		//tfListener->lookupTransform("/odom", "/base_link", ros::Time(0),transform);
+		tf::StampedTransform transform;
+		tfListener->waitForTransform("/map", "/odom", ros::Time(0), ros::Duration(3.0));
+		tfListener->lookupTransform("/map", "/odom", ros::Time(0), transform);
+		tfListener->lookupTransform("/map", "/base_link", ros::Time(0),transform);
 		//
 		float resolution = map.info.resolution;
 		//ROS_INFO("Resolution: %f, map width: %d, map_height: %d", resolution, map.info.width, map.info.height);
-		//float x = transform.getOrigin().x() / resolution;
-		//float y = transform.getOrigin().y() / resolution;
 		//
 		float map_x = map.info.origin.position.x / resolution;
 		float map_y = map.info.origin.position.y / resolution;
@@ -198,7 +196,8 @@ protected:
 int main(int argc, char **argv) {
 	ros::init(argc, argv, "TurtlebotExploration"); // Initiate new ROS node named "random_walk"
 	ros::NodeHandle n;
-	TurtlebotExploration walker(n); // Create new random walk object
+	tf::TransformListener listener;
+	TurtlebotExploration walker(n, listener);
 	ROS_INFO("INFO!");
 	walker.spin(); // Execute FSM loop
 	return 0;
