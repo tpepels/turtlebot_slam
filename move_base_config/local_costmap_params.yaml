@@ -2,22 +2,23 @@
 
 local_costmap:
   #We'll publish the voxel grid used by this costmap
-  publish_voxel_map: true
+  #publish_voxel_map: true
 
   #Set the global and robot frames for the costmap
-  global_frame: odom
-  robot_base_frame: base_link
+  global_frame: /odom
+  robot_base_frame: /base_link
 
   #Set the update and publish frequency of the costmap
-  update_frequency: 2.0
-  publish_frequency: 2.0
+  update_frequency: 5.0
+  publish_frequency: 5.0
 
   #We'll configure this costmap to be a rolling window... meaning it is always
   #centered at the robot
   static_map: false
   rolling_window: true
-  width: 3.0
-  height: 3.0
+  width: 1.5
+  height: 1.5
   resolution: 0.1
-  origin_x: 0.0
-  origin_y: 0.0
+  #origin_x: 0.0
+  #origin_y: 0.0
+  transform_tolerance: 0.5
