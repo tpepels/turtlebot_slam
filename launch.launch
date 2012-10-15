@@ -6,27 +6,38 @@
   </node>
   <include file="$(find turtlebot_slam)/move_base_config/move_base.xml" />
   <node pkg="gmapping" type="slam_gmapping" name="gmapping" args="scan:=base_scan">
-  	  <param name="delta" value="0.05" />
-      <param name="odom_frame" value="odom"/>
-      <param name="map_update_interval" value="10.0"/>
-      <param name="maxUrange" value="16.0"/>
-      <param name="sigma" value="0.05"/>
-      <param name="kernelSize" value="1"/>
-      <param name="lstep" value="0.05"/>
-      <param name="astep" value="0.05"/>
-      <param name="iterations" value="5"/>
-      <param name="lsigma" value="0.075"/>
-      <param name="ogain" value="3.0"/>
-      <param name="lskip" value="0"/>
-      <param name="srr" value="0.01"/>
-      <param name="srt" value="0.02"/>
-      <param name="str" value="0.01"/>
-      <param name="stt" value="0.02"/>
-      <param name="linearUpdate" value="0.5"/>
-      <param name="angularUpdate" value="0.436"/>
-      <param name="temporalUpdate" value="-1.0"/>
-      <param name="resampleThreshold" value="0.5"/>
-      <param name="particles" value="80"/>
+  	     <param name="odom_frame" value="odom"/>
+    <param name="map_update_interval" value="5.0"/>
+    <param name="maxUrange" value="3.2"/>
+    <param name="maxRange" value="10.0" />
+    <param name="sigma" value="0.05"/>
+    <param name="kernelSize" value="1"/>
+    <param name="lstep" value="0.05"/>
+    <param name="astep" value="0.05"/>
+    <param name="iterations" value="5"/>
+    <param name="lsigma" value="0.075"/>
+    <param name="ogain" value="3.0"/>
+    <param name="lskip" value="0"/>
+    <param name="srr" value="0.01"/>
+    <param name="srt" value="0.02"/>
+    <param name="str" value="0.01"/>
+    <param name="stt" value="0.02"/>
+    <param name="linearUpdate" value="0.5"/>
+    <param name="angularUpdate" value="0.436"/>
+    <param name="temporalUpdate" value="10.0"/>
+    <param name="resampleThreshold" value="0.5"/>
+    <param name="particles" value="100"/>
+    <param name="xmin" value="-5.0"/>
+    <param name="ymin" value="-5.0"/>
+    <param name="xmax" value="5.0"/>
+    <param name="ymax" value="5.0"/>
+
+    <param name="delta" value="0.05"/>
+    <param name="llsamplerange" value="0.01"/>
+    <param name="llsamplestep" value="0.01"/>
+    <param name="lasamplerange" value="0.005"/>
+    <param name="lasamplestep" value="0.005"/>
   </node>
-  <node pkg="turtlebot_slam" type="turtlebot_exploration" name="turtlebot_exploration" output="screen" />
+  <node pkg="turtlebot_slam" type="turtlebot_exploration" name="turtlebot_slam" output="screen" />
+  <node pkg="slam_navigation" type="slam_navigation" name="slam_navigation" output="screen" />
 </launch>

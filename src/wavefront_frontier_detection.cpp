@@ -10,7 +10,7 @@ using namespace std;
 
 const int MAP_OPEN_LIST = 1, MAP_CLOSE_LIST = 2, FRONTIER_OPEN_LIST = 3, FRONTIER_CLOSE_LIST = 4;
 const int OCC_THRESHOLD = 10;
-const int N_S = 24;
+const int N_S = 8;
 
 vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int map_width, int pose) {	
 	
@@ -69,8 +69,9 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 				}
 				cell_states[n_cell] = FRONTIER_CLOSE_LIST;
 			}
+			if(new_frontier.size() > 1)
 			frontiers.push_back(new_frontier);
-			//
+			
 			//ROS_INFO("WFD 4.5");
 			for(unsigned int i = 0; i < new_frontier.size(); i++) {
 				cell_states[new_frontier[i]] = MAP_CLOSE_LIST;
@@ -109,7 +110,7 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 	return frontiers;
 }
 
-void get_small_neighbours(int n_array[], int position, int map_width) {
+void get_neighbours(int n_array[], int position, int map_width) {
 	n_array[0] = position - map_width - 1;
 	n_array[1] = position - map_width; 
 	n_array[2] = position - map_width + 1; 
@@ -120,7 +121,7 @@ void get_small_neighbours(int n_array[], int position, int map_width) {
 	n_array[7] = position + map_width + 1;
 }
 
-void get_neighbours(int n_array[], int position, int map_width) {
+void get_big_neighbours(int n_array[], int position, int map_width) {
 	n_array[0] = position - map_width - 1;
 	n_array[1] = position - map_width; 
 	n_array[2] = position - map_width + 1; 
@@ -149,7 +150,7 @@ void get_neighbours(int n_array[], int position, int map_width) {
 }
 
 
-const int MIN_FOUND = 2;
+const int MIN_FOUND = 1;
 bool is_frontier_point(const nav_msgs::OccupancyGrid& map, int point, int map_size, int map_width) {
 	// The point under consideration must be known
 	if(map.data[point] != 0) {
@@ -161,18 +162,21 @@ bool is_frontier_point(const nav_msgs::OccupancyGrid& map, int point, int map_si
 	int found = 0;
 	for(int i = 0; i < N_S; i++) {
 		if(locations[i] < map_size && locations[i] >= 0) {
-			if(i < 8){
-				if(map.data[locations[i]] != 0) {
-					return false;
-				}
-			}else{
+			//if(i < 8){
+			//	if(map.data[locations[i]] != 0) {
+			//		return false;
+			//	}
+			//}else{
 				//At least one of the neighbours is open and known space, hence frontier point
-				if(map.data[locations[i]] == -1) {
-					found++;
-					if(found == MIN_FOUND) 
-						return true;
-				}
+			if(map.data[locations[i]] > OCC_THRESHOLD) {
+				return false;
 			}
+			if(map.data[locations[i]] == -1) {
+				found++;
+				if(found == MIN_FOUND) 
+					return true;
+			}
+			//}
 		}
 	}
 	return false;

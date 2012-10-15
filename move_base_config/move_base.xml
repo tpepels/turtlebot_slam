@@ -4,16 +4,7 @@ Example move_base configuration. Descriptions of parameters, as well as a full l
 -->
 <!-- <node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen"> -->
 <node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen">
-<param name="controller_patience" value="5.0" />
-<param name="footprint_padding" value="0.01" />
-<param name="controller_frequency" value="20.0" />
-<!-- 
-<param name="oscillation_timeout" value="30.0" />
-<param name="oscillation_distance" value="0.5" /> 
-<param name="recovery_behavior_enabled" value="true" /> -->
-<!--
-<param name="base_local_planner" value="dwa_local_planner/DWAPlannerROS" />
---> 
+<!-- <param name="base_global_planner" value="carrot_planner/CarrotPlanner"/> -->
 <rosparam file="$(find turtlebot_slam)/move_base_config/costmap_common_params.yaml" command="load" ns="global_costmap" />
 <rosparam file="$(find turtlebot_slam)/move_base_config/costmap_common_params.yaml" command="load" ns="local_costmap" />
 <rosparam file="$(find turtlebot_slam)/move_base_config/local_costmap_params.yaml" command="load" />
