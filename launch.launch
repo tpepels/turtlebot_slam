@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <launch>
   <param name="/use_sim_time" value="true" />
   <node pkg="rviz" type="rviz" name="rviz" args="-d $(find turtlebot_slam)/view.vcg" />
@@ -5,11 +6,12 @@
   	<param name="base_watchdog_timeout" value=".2"/>
   </node>
   <include file="$(find turtlebot_slam)/move_base_config/move_base.xml" />
+
+  <!-- Gmapping package configuration! -->
   <node pkg="gmapping" type="slam_gmapping" name="gmapping" args="scan:=base_scan">
-  	     <param name="odom_frame" value="odom"/>
-    <param name="map_update_interval" value="5.0"/>
-    <param name="maxUrange" value="3.2"/>
-    <param name="maxRange" value="10.0" />
+    <param name="map_update_interval" value="2.5"/>
+    <param name="maxUrange" value="3.3"/>
+    <param name="maxRange" value="3.9" />
     <param name="sigma" value="0.05"/>
     <param name="kernelSize" value="1"/>
     <param name="lstep" value="0.05"/>
@@ -22,15 +24,11 @@
     <param name="srt" value="0.02"/>
     <param name="str" value="0.01"/>
     <param name="stt" value="0.02"/>
-    <param name="linearUpdate" value="0.5"/>
-    <param name="angularUpdate" value="0.436"/>
+    <param name="linearUpdate" value="0.25"/>
+    <param name="angularUpdate" value="0.25"/>
     <param name="temporalUpdate" value="10.0"/>
     <param name="resampleThreshold" value="0.5"/>
-    <param name="particles" value="100"/>
-    <param name="xmin" value="-5.0"/>
-    <param name="ymin" value="-5.0"/>
-    <param name="xmax" value="5.0"/>
-    <param name="ymax" value="5.0"/>
+    <param name="particles" value="60"/>
 
     <param name="delta" value="0.05"/>
     <param name="llsamplerange" value="0.01"/>
@@ -38,6 +36,7 @@
     <param name="lasamplerange" value="0.005"/>
     <param name="lasamplestep" value="0.005"/>
   </node>
+  <!-- The implementation of the frontier detection and navigation -->
   <node pkg="turtlebot_slam" type="turtlebot_exploration" name="turtlebot_slam" output="screen" />
   <node pkg="slam_navigation" type="slam_navigation" name="slam_navigation" output="screen" />
 </launch>
