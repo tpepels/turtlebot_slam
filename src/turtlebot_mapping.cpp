@@ -12,6 +12,7 @@
 #include "wavefront_frontier_detection.hpp"
 #include "sensor_msgs/PointCloud.h"
 #include "move_base_msgs/MoveBaseAction.h"
+#include "FFD.hpp"
 #include "actionlib/client/simple_action_client.h"
 #include <cstdlib> // Needed for rand()
 #include <ctime> // Needed to seed random number generator with a time value
@@ -49,7 +50,22 @@ public:
 		float x = 0. - map_x;
 		float y = 0. - map_y;
 
-		vector<vector<int> > frontiers = wfd(map, map.info.height, map.info.width, x + (y * map.info.width));
+                vector<vector<int> > frontiers;
+                bool useFFD = 0;
+                if(useFFD){
+                  //position of the robot in a format needed by FFD
+                  MyPoint position_Map;
+                  position_Map.x = x;
+                  position_Map.y = y;
+
+                //laser reading of the robot stored in point format
+                vector<MyPoint> laser_readings;
+                frontiers = FFD( position_Map,laser_readings, map, map.info.height, map.info.width);
+                //Get_Line(position_Map,position_Map);
+
+                } else {
+		frontiers = wfd(map, map.info.height, map.info.width, x + (y * map.info.width));
+                }
 		int num_points = 0;
 		for(int i = 0; i < frontiers.size(); i++) {
 			for(int j = 0; j < frontiers[i].size(); j++) {

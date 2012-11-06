@@ -7,11 +7,11 @@
 #include "FFD.hpp"
 #include "nav_msgs/OccupancyGrid.h"
 
-#define Frontier vector<Point>
-vector<Frontier> frontiersDB;
-
 
 using namespace std;
+
+//#define Frontier vector<MyPoint>
+vector<Frontier> frontiersDB;
 
 
 
@@ -60,7 +60,7 @@ float CrossProduct(float x0,float y0,float x1,float y1,float x2,float y2)
     return (x1 - x0)*(y2 - y0) - (x2 - x0)*(y1 - y0);
 }
 
-vector<Point> Sort_Polar( vector<Point> lr, Point pose )
+vector<MyPoint> Sort_Polar( vector<MyPoint> lr, MyPoint pose )
 {
 //simple bubblesort
     bool swapped = 0;
@@ -71,7 +71,7 @@ vector<Point> Sort_Polar( vector<Point> lr, Point pose )
         {
             if( CrossProduct(pose.x,pose.y,lr[i-1].x,lr[i-2].y,lr[i].x,lr[i].y) >= 0 )  //sorting clockwise
             {
-                Point swap = lr[i-1];
+                MyPoint swap = lr[i-1];
                 lr[i-1] = lr[i];
                 lr[i] = swap;
                 swapped = 1;
@@ -85,7 +85,7 @@ vector<Point> Sort_Polar( vector<Point> lr, Point pose )
 
 
 //Bresenham's line algorithm
-Line Get_Line( Point prev, Point curr )
+Line Get_Line( MyPoint prev, MyPoint curr )
 {
     Line output;
 
@@ -96,7 +96,7 @@ Line Get_Line( Point prev, Point curr )
 
     float D = 2*dy - dx;
 
-    Point newPoint;
+    MyPoint newPoint;
     newPoint.x = x0;
     newPoint.y = y0;
     output.points.push_back(newPoint);
@@ -108,7 +108,7 @@ Line Get_Line( Point prev, Point curr )
         if (D > 0)
         {
             y = y+1;
-            Point newPoint;
+            MyPoint newPoint;
             newPoint.x = x;
             newPoint.y = y;
             output.points.push_back(newPoint);
@@ -116,7 +116,7 @@ Line Get_Line( Point prev, Point curr )
         }
         else
         {
-            Point newPoint;
+            MyPoint newPoint;
             newPoint.x = x;
             newPoint.y = y;
             output.points.push_back(newPoint);
@@ -128,16 +128,16 @@ Line Get_Line( Point prev, Point curr )
     return output;
 }
 
-void FFD( Point pose,vector<Point> lr, const nav_msgs::OccupancyGrid& map, int map_height, int map_width)
+vector<vector<int> > FFD( MyPoint pose,vector<MyPoint> lr, const nav_msgs::OccupancyGrid& map, int map_height, int map_width)
 {
     int map_size = map_height * map_width;
 
 // polar sort readings according to robot position
-    vector<Point> sorted = Sort_Polar(lr,pose);
+    vector<MyPoint> sorted = Sort_Polar(lr,pose);
 // get the contour from laser readings
-    Point prev = sorted.back();
+    MyPoint prev = sorted.back();
     sorted.pop_back();
-    vector<Point> contour;
+    vector<MyPoint> contour;
 
     for(unsigned int i=0; i<sorted.size(); i++)
     {
@@ -161,7 +161,7 @@ void FFD( Point pose,vector<Point> lr, const nav_msgs::OccupancyGrid& map, int m
     }
     for(unsigned int i=0; i<contour.size(); i++)
     {
-        Point curr = contour[i];
+        MyPoint curr = contour[i];
         if( !is_frontier_point2(map, (curr.x + curr.y * map_width)  ,map_size,map_width) )
         {
             prev = curr;
@@ -201,7 +201,7 @@ void FFD( Point pose,vector<Point> lr, const nav_msgs::OccupancyGrid& map, int m
     {
         for(int y=y_min; y<=y_max; y++)
         {
-            Point p;
+            MyPoint p;
             p.x = x;
             p.y = y;
             if( is_frontier_point2(map, (p.x + p.y * map_width)  ,map_size,map_width) )
@@ -283,6 +283,10 @@ void FFD( Point pose,vector<Point> lr, const nav_msgs::OccupancyGrid& map, int m
             frontiersDB.erase(frontiersDB.begin() + i);
         }
     }
+
+
+vector<vector<int> > Result;
+return Result;
 
 }//end FFD
 
