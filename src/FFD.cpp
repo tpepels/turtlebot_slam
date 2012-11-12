@@ -67,7 +67,7 @@ vector<MyPoint> Sort_Polar( vector<MyPoint> lr, MyPoint pose )
     do
     {
         swapped = 0;
-        for(int i=1; i<lr.size(); i++)
+        for(unsigned int i=1; i<lr.size(); i++)
         {
             if( CrossProduct(pose.x,pose.y,lr[i-1].x,lr[i-2].y,lr[i].x,lr[i].y) >= 0 )  //sorting clockwise
             {
@@ -286,6 +286,26 @@ vector<vector<int> > FFD( MyPoint pose,vector<MyPoint> lr, const nav_msgs::Occup
 
 
 vector<vector<int> > Result;
+//convert frontierDB to frontiers
+for(unsigned int i=0; i<frontiersDB.size(); i++){
+  vector<int> NewFrontiers;
+  vector<MyPoint> ThisFrontier = frontiersDB[i];
+  for(unsigned int j=0; j<ThisFrontier.size(); j++){
+    NewFrontiers.push_back(   ThisFrontier[j].x + (ThisFrontier[j].y * map.info.width) );
+  }
+  Result.push_back(NewFrontiers);
+}
+
+
+vector<int> NewFrontiers2;
+for(int x=0; x<5; x++){
+  for(int y=0; y<5; y++){
+  NewFrontiers2.push_back( x + (y * map.info.width) );
+ }
+}
+
+Result.push_back(NewFrontiers2);
+
 return Result;
 
 }//end FFD
