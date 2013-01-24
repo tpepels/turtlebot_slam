@@ -78,7 +78,7 @@ public:
 	// processed in a timely manner, and also for sending
 	// velocity controls to the simulated robot based on the FSM state
 	void spin() {
-		ros::Rate rate(1); // Specify the FSM loop rate in Hz
+		ros::Rate rate(10); // Specify the FSM loop rate in Hz
 		while (ros::ok()) { // Keep spinning loop until user presses Ctrl+C
 			ros::spinOnce(); // Need to call this function often to allow ROS to process incoming messages
 			frontier_publisher.publish(frontier_cloud);
