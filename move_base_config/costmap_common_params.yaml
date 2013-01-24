@@ -1,12 +1,37 @@
 #This file contains common configuration options for the two costmaps used in the navigation stack for more details on the parameters in this file, and a full list of the parameters used by the costmaps, please see http://www.ros.org/wiki/costmap_2d
 
+#For this example we'll configure the costmap in voxel-grid mode
+map_type: voxel
+
+#Voxel grid specific parameters
+origin_z: 0.0
+z_resolution: 0.2
+z_voxels: 10
+unknown_threshold: 9
+mark_threshold: 0
+
+#Set the tolerance we're willing to have for tf transforms
+transform_tolerance: 0.5
+
+#Obstacle marking parameters
 obstacle_range: 2.5
-raytrace_range: 4.0
-#footprint: [[-0.12, -0.12], [-0.12, 0.12], [0.12, 0.12], [0.14, 0.0], [0.12, -0.12]]
-robot_radius: 0.18
+max_obstacle_height: 2.0
+raytrace_range: 3.0
+
+#The footprint of the robot and associated padding
+#footprint: [[-0.125, -0.125], [-0.125, 0.125], [0.125, 0.125], [0.125, 0.0], [0.125, -0.125]]
+#footprint: [[-0.325, -0.325], [-0.325, 0.325], [0.325, 0.325], [0.46, 0.0], [0.325, -0.325]]
+robot_radius: 0.20
 footprint_padding: 0.01
-inflation_radius: 0.4
+
+#Cost function parameters
+inflation_radius: 0.3
+cost_scaling_factor: 10.0
+
+#The cost at which a cell is considered an obstacle when a map is read from the map_server
+lethal_cost_threshold: 100
 
 #Configuration for the sensors that the costmap will use to update a map
-observation_sources: scan
-scan: {data_type: LaserScan, topic: /base_scan, marking: true, clearing: true}
+observation_sources: base_scan
+base_scan: {data_type: LaserScan, expected_update_rate: 0.9,
+  observation_persistence: 0.0, marking: true, clearing: true}

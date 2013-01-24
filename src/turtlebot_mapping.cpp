@@ -35,7 +35,7 @@ public:
 		// Subscribe to the simulated robot's laser scan topic and tell ROS to call
 		// this->commandCallback() whenever a new message is published on that topic
 		//laserSub = nh.subscribe("base_scan", 1, &TurtlebotExploration::commandCallback,this);
-		mapSub = nh.subscribe("/map", 1, &TurtlebotExploration::mapCallback, this);
+		mapSub = nh.subscribe("map", 1, &TurtlebotExploration::mapCallback, this);
 		//
 		frontier_cloud.header.frame_id = "map";
 	}
@@ -50,22 +50,7 @@ public:
 		float x = 0. - map_x;
 		float y = 0. - map_y;
 
-                vector<vector<int> > frontiers;
-                bool useFFD = 0;
-                if(useFFD){
-                  //position of the robot in a format needed by FFD
-                  MyPoint position_Map;
-                  position_Map.x = x;
-                  position_Map.y = y;
-
-                //laser reading of the robot stored in point format
-                vector<MyPoint> laser_readings;
-                frontiers = FFD( position_Map,laser_readings, map, map.info.height, map.info.width);
-                //Get_Line(position_Map,position_Map);
-
-                } else {
-		frontiers = wfd(map, map.info.height, map.info.width, x + (y * map.info.width));
-                }
+		vector<vector<int> > frontiers = wfd(map, map.info.height, map.info.width, x + (y * map.info.width));
 		int num_points = 0;
 		for(int i = 0; i < frontiers.size(); i++) {
 			for(int j = 0; j < frontiers[i].size(); j++) {
@@ -77,7 +62,7 @@ public:
 		int pointI = 0;
 		for(int i = 0; i < frontiers.size(); i++) {
 			for(int j = 0; j < frontiers[i].size(); j++) {
-				frontier_cloud.points[pointI].x = ((frontiers[i][j] % map.info.width) + map_x) * resolution;
+				frontier_cloud.points[pointI].x = ((frontiers[i][j] % map.info.width) + map_x) * resolution ;
 				frontier_cloud.points[pointI].y = ((frontiers[i][j] / map.info.width) + map_y) * resolution;
 				frontier_cloud.points[pointI].z = 0;
 				pointI++;
@@ -85,7 +70,7 @@ public:
 		}
 		//
 		frontier_publisher.publish(frontier_cloud);
-		ROS_INFO("published cloud! Size: %d.", num_points);
+		//ROS_INFO("published cloud! Size: %d.", num_points);
 	}
 	;
 
@@ -93,10 +78,10 @@ public:
 	// processed in a timely manner, and also for sending
 	// velocity controls to the simulated robot based on the FSM state
 	void spin() {
-		ros::Rate rate(100); // Specify the FSM loop rate in Hz
+		ros::Rate rate(1); // Specify the FSM loop rate in Hz
 		while (ros::ok()) { // Keep spinning loop until user presses Ctrl+C
-			frontier_publisher.publish(frontier_cloud);
 			ros::spinOnce(); // Need to call this function often to allow ROS to process incoming messages
+			frontier_publisher.publish(frontier_cloud);
 			rate.sleep(); // Sleep for the rest of the cycle, to enforce the FSM loop rate
 		}
 	}

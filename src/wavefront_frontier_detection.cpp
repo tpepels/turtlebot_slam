@@ -71,7 +71,8 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 				}
 				cell_states[n_cell] = FRONTIER_CLOSE_LIST;
 			}
-			frontiers.push_back(new_frontier);
+			if(new_frontier.size() > 2)
+				frontiers.push_back(new_frontier);
 			
 			//ROS_INFO("WFD 4.5");
 			for(unsigned int i = 0; i < new_frontier.size(); i++) {
@@ -107,7 +108,7 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 		cell_states[cur_pos] = MAP_CLOSE_LIST;
 		//ROS_INFO("wfd 7.1");
 	}
-	ROS_INFO("wfd 8");
+	// ROS_INFO("wfd 8");
 	return frontiers;
 }
 
