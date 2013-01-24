@@ -1,9 +1,17 @@
 Background\ ColorB=0
 Background\ ColorG=0
 Background\ ColorR=0
-Camera\ Config=1.5698 4.1604 13.8396 -1.7834 -1.25466 1.19209e-07
+Camera\ Config=1.5698 4.1804 7.72087 0.0564818 -0.960209 1.19209e-07
 Camera\ Type=rviz::XYOrbitViewController
-Fixed\ Frame=/map
+Edges.Enabled=1
+Edges.Marker\ Topic=/graph_vis
+Edges.Queue\ Size=100
+EstimatedPose.Axes\ Length=0.4
+EstimatedPose.Axes\ Radius=0.05
+EstimatedPose.Enabled=1
+EstimatedPose.Shape=1
+EstimatedPose.Topic=/last_pose
+Fixed\ Frame=/odom
 Global\ Path.Alpha=1
 Global\ Path.ColorB=0
 Global\ Path.ColorG=0
@@ -30,63 +38,10 @@ Grid.OffsetZ=0
 Grid.Plane=0
 Grid.Plane\ Cell\ Count=10
 Grid.Reference\ Frame=<Fixed Frame>
-GridCells.Alpha=0.2
-GridCells.ColorB=1
-GridCells.ColorG=0
-GridCells.ColorR=0.333333
-GridCells.Enabled=0
-GridCells.Topic=/move_base_node/local_costmap/inflated_obstacles
-Inflated\ Obstacles.Alpha=1
-Inflated\ Obstacles.ColorB=1
-Inflated\ Obstacles.ColorG=0.729412
-Inflated\ Obstacles.ColorR=0.00392157
-Inflated\ Obstacles.Enabled=1
-Inflated\ Obstacles.Topic=/move_base/local_costmap/inflated_obstacles
-Laser\ Scan..AxisColorAutocompute\ Value\ Bounds=1
-Laser\ Scan..AxisColorAxis=2
-Laser\ Scan..AxisColorMax\ Value=10
-Laser\ Scan..AxisColorMin\ Value=-10
-Laser\ Scan..AxisColorUse\ Fixed\ Frame=1
-Laser\ Scan..FlatColorColorB=1
-Laser\ Scan..FlatColorColorG=1
-Laser\ Scan..FlatColorColorR=1
-Laser\ Scan..IntensityAutocompute\ Intensity\ Bounds=1
-Laser\ Scan..IntensityChannel\ Name=intensity
-Laser\ Scan..IntensityMax\ ColorB=1
-Laser\ Scan..IntensityMax\ ColorG=1
-Laser\ Scan..IntensityMax\ ColorR=1
-Laser\ Scan..IntensityMax\ Intensity=1
-Laser\ Scan..IntensityMin\ ColorB=0
-Laser\ Scan..IntensityMin\ ColorG=0
-Laser\ Scan..IntensityMin\ ColorR=0
-Laser\ Scan..IntensityMin\ Intensity=0
-Laser\ Scan..IntensityUse\ full\ RGB\ spectrum=0
-Laser\ Scan.Alpha=1
-Laser\ Scan.Billboard\ Size=0.05
-Laser\ Scan.Color\ Transformer=Intensity
-Laser\ Scan.Decay\ Time=0
-Laser\ Scan.Enabled=0
-Laser\ Scan.Position\ Transformer=XYZ
-Laser\ Scan.Queue\ Size=10
-Laser\ Scan.Selectable=1
-Laser\ Scan.Style=1
-Laser\ Scan.Topic=/base_scan
-Local\ costmap.Alpha=1
-Local\ costmap.ColorB=0
-Local\ costmap.ColorG=1
-Local\ costmap.ColorR=0.1
-Local\ costmap.Enabled=0
-Local\ costmap.Topic=/move_base_node/local_costmap/obstacles
 Map.Alpha=0.7
 Map.Draw\ Behind=0
 Map.Enabled=1
 Map.Topic=/map
-Obstacles.Alpha=1
-Obstacles.ColorB=0
-Obstacles.ColorG=0.447059
-Obstacles.ColorR=1
-Obstacles.Enabled=1
-Obstacles.Topic=/move_base/local_costmap/obstacles
 PointCloud..AxisColorAutocompute\ Value\ Bounds=1
 PointCloud..AxisColorAxis=2
 PointCloud..AxisColorMax\ Value=10
@@ -122,9 +77,15 @@ Pose\ Array.ColorG=0.1
 Pose\ Array.ColorR=1
 Pose\ Array.Enabled=1
 Pose\ Array.Topic=/particlecloud
-Property\ Grid\ Splitter=1,1
-Property\ Grid\ State=expanded=.Global Options,Local costmap.Enabled,GridCells.Enabled;splitterratio=0.5
-QMainWindow=000000ff00000000fd00000003000000000000011d000002f1fc0200000001fb000000100044006900730070006c0061007900730000000017000002f1000000ee00ffffff000000010000012a000001b3fc0200000003fb0000001e0054006f006f006c002000500072006f007000650072007400690065007300000000340000006f0000006700fffffffb0000000a00560069006500770073000000003400000114000000bb00fffffffb0000001200530065006c0065006300740069006f006e0000000034000001b30000006700ffffff00000003000003ae0000003efc0100000001fb0000000800540069006d00650100000000000003ae0000022600ffffff000003ae000002f100000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730000000000ffffffff0000000000000000
+Poses.Arrow\ Length=0.3
+Poses.ColorB=0
+Poses.ColorG=1
+Poses.ColorR=0.917647
+Poses.Enabled=1
+Poses.Topic=/pose
+Property\ Grid\ Splitter=295,78
+Property\ Grid\ State=;splitterratio=0.5
+QMainWindow=000000ff00000000fd00000003000000000000011d000001c7fc0200000001fb000000100044006900730070006c0061007900730000000017000001c7000000ee00ffffff000000010000012a000001b3fc0200000003fb0000001e0054006f006f006c002000500072006f007000650072007400690065007300000000340000006f0000006700fffffffb0000000a00560069006500770073000000003400000114000000bb00fffffffb0000001200530065006c0065006300740069006f006e0000000034000001b30000006700ffffff00000003000002760000003efc0100000001fb0000000800540069006d00650100000000000002760000022600ffffff00000276000001c700000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730000000000ffffffff0000000000000000
 Robot\ Model.Alpha=1
 Robot\ Model.Collision\ Enabled=0
 Robot\ Model.Enabled=1
@@ -155,58 +116,51 @@ target.Enabled=1
 target.Shape=1
 target.Topic=/move_base_simple/goal
 [Display0]
-ClassName=rviz::LaserScanDisplay
-Name=Laser Scan
-[Display1]
 ClassName=rviz::MapDisplay
 Name=Map
-[Display10]
-ClassName=rviz::PathDisplay
-Name=Global Path
-[Display11]
-ClassName=rviz::GridCellsDisplay
-Name=Local costmap
-[Display12]
-ClassName=rviz::PoseDisplay
-Name=target
-[Display13]
-ClassName=rviz::PoseDisplay
-Name=Goal
-[Display14]
-ClassName=rviz::GridCellsDisplay
-Name=GridCells
-[Display2]
+[Display1]
 ClassName=rviz::PoseArrayDisplay
 Name=Pose Array
-[Display3]
+[Display10]
+ClassName=rviz::PoseDisplay
+Name=Goal
+[Display11]
+ClassName=rviz::PoseArrayDisplay
+Name=Poses
+[Display12]
+ClassName=rviz::MarkerDisplay
+Name=Edges
+[Display2]
 ClassName=rviz::GridDisplay
 Name=Grid
-[Display4]
+[Display3]
 ClassName=rviz::RobotModelDisplay
 Name=Robot Model
-[Display5]
+[Display4]
 ClassName=rviz::TFDisplay
 Name=TF
-[Display6]
-ClassName=rviz::GridCellsDisplay
-Name=Obstacles
-[Display7]
-ClassName=rviz::GridCellsDisplay
-Name=Inflated Obstacles
-[Display8]
+[Display5]
 ClassName=rviz::PointCloudDisplay
 Name=PointCloud
-[Display9]
+[Display6]
+ClassName=rviz::PoseDisplay
+Name=EstimatedPose
+[Display7]
 ClassName=rviz::PolygonDisplay
 Name=Robot_Base
+[Display8]
+ClassName=rviz::PathDisplay
+Name=Global Path
+[Display9]
+ClassName=rviz::PoseDisplay
+Name=target
 [TF.Frames.]
 base_footprint.Enabled=1
 base_laser_link.Enabled=1
 base_link.Enabled=1
-map.Enabled=1
 odom.Enabled=1
 [Window]
-Height=890
-Width=962
-X=-2
-Y=129
+Height=592
+Width=650
+X=0
+Y=578

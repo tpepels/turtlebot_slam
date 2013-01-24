@@ -69,7 +69,7 @@ vector<vector<int> > wfd(const nav_msgs::OccupancyGrid& map, int map_height, int
 				}
 				cell_states[n_cell] = FRONTIER_CLOSE_LIST;
 			}
-			if(new_frontier.size() > 1)
+			
 			frontiers.push_back(new_frontier);
 			
 			//ROS_INFO("WFD 4.5");
@@ -153,7 +153,7 @@ void get_big_neighbours(int n_array[], int position, int map_width) {
 const int MIN_FOUND = 1;
 bool is_frontier_point(const nav_msgs::OccupancyGrid& map, int point, int map_size, int map_width) {
 	// The point under consideration must be known
-	if(map.data[point] != 0) {
+	if(map.data[point] != -1) {
 		return false;
 	}
 	//
@@ -162,17 +162,14 @@ bool is_frontier_point(const nav_msgs::OccupancyGrid& map, int point, int map_si
 	int found = 0;
 	for(int i = 0; i < N_S; i++) {
 		if(locations[i] < map_size && locations[i] >= 0) {
-			//if(i < 8){
-			//	if(map.data[locations[i]] != 0) {
-			//		return false;
-			//	}
-			//}else{
-				//At least one of the neighbours is open and known space, hence frontier point
+			// None of the neighbours should be occupied space.		
 			if(map.data[locations[i]] > OCC_THRESHOLD) {
 				return false;
 			}
-			if(map.data[locations[i]] == -1) {
+			//At least one of the neighbours is open and known space, hence frontier point
+			if(map.data[locations[i]] == 0) {
 				found++;
+				//
 				if(found == MIN_FOUND) 
 					return true;
 			}

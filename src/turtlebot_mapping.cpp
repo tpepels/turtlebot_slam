@@ -34,7 +34,7 @@ public:
 		// Subscribe to the simulated robot's laser scan topic and tell ROS to call
 		// this->commandCallback() whenever a new message is published on that topic
 		//laserSub = nh.subscribe("base_scan", 1, &TurtlebotExploration::commandCallback,this);
-		mapSub = nh.subscribe("map", 10, &TurtlebotExploration::mapCallback, this);
+		mapSub = nh.subscribe("/map", 1, &TurtlebotExploration::mapCallback, this);
 		//
 		frontier_cloud.header.frame_id = "map";
 	}
@@ -61,7 +61,7 @@ public:
 		int pointI = 0;
 		for(int i = 0; i < frontiers.size(); i++) {
 			for(int j = 0; j < frontiers[i].size(); j++) {
-				frontier_cloud.points[pointI].x = ((frontiers[i][j] % map.info.width) + map_x) * resolution ;
+				frontier_cloud.points[pointI].x = ((frontiers[i][j] % map.info.width) + map_x) * resolution;
 				frontier_cloud.points[pointI].y = ((frontiers[i][j] / map.info.width) + map_y) * resolution;
 				frontier_cloud.points[pointI].z = 0;
 				pointI++;
@@ -77,7 +77,7 @@ public:
 	// processed in a timely manner, and also for sending
 	// velocity controls to the simulated robot based on the FSM state
 	void spin() {
-		ros::Rate rate(10); // Specify the FSM loop rate in Hz
+		ros::Rate rate(100); // Specify the FSM loop rate in Hz
 		while (ros::ok()) { // Keep spinning loop until user presses Ctrl+C
 			frontier_publisher.publish(frontier_cloud);
 			ros::spinOnce(); // Need to call this function often to allow ROS to process incoming messages
@@ -96,7 +96,7 @@ int main(int argc, char **argv) {
 	ros::init(argc, argv, "TurtlebotExploration"); // Initiate new ROS node named "random_walk"
 	ros::NodeHandle n;
 	TurtlebotExploration walker(n);
-	ROS_INFO("INFO!");
+	ROS_INFO("INFO! FRINTIERS");
 	walker.spin(); // Execute FSM loop
 	return 0;
 }

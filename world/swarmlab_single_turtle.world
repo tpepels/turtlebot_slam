@@ -5,7 +5,7 @@ interval_sim 100 # simulation timestep in milliseconds
 window
 ( 
   size [ 554 447 ] 
-  scale 21.642 
+  scale 31.686 
 )
 
 define map model
@@ -56,4 +56,4 @@ define turtlebot position
   bitmap "robot.png"
 )
 
-turtlebot( pose [-1.879 -0.039 0.000 31.952] color "red")
+turtlebot( pose [1.602 -1.635 0.000 89.248] color "red")
