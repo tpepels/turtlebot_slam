@@ -5,21 +5,21 @@
 #include <vector>
 #include "nav_msgs/OccupancyGrid.h"
 
-#define Frontier vector<Point>
+#define Frontier std::vector<MyPoint>
 
-using namespace std;
+//using namespace std;
 
-struct Point{
+struct MyPoint{
 int x;
 int y;
 };
 
 struct Line{
-vector<Point> points;
+std::vector<MyPoint> points;
 };
 
 
 // vector<Frontier> frontiersDB, 
-void FFD( Point pose,vector<Point> lr, const nav_msgs::OccupancyGrid& map, int map_height, int map_width);
-vector<Point> Sort_Polar( vector<Point> lr, Point pose);
-Line Get_Line( Point prev, Point curr );
+std::vector<std::vector<int> > FFD( MyPoint pose, std::vector<MyPoint> lr, const nav_msgs::OccupancyGrid& map, int map_height, int map_width);
+std::vector<MyPoint> Sort_Polar( std::vector<MyPoint> lr, MyPoint pose);
+Line Get_Line( MyPoint prev, MyPoint curr );

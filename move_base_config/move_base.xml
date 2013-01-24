@@ -6,7 +6,6 @@ Example move_base configuration. Descriptions of parameters, as well as a full l
 <param name="/move_base_node/NavfnROS/visualize_potential" value="true" />
 <param name="/move_base_node/NavfnROS/default_tolerance" value="0.5" />
 <node pkg="move_base" type="move_base" respawn="false" name="move_base_node" output="screen">
-<!-- <param name="base_global_planner" value="carrot_planner/CarrotPlanner"/> -->
 <rosparam file="$(find turtlebot_slam)/move_base_config/costmap_common_params.yaml" command="load" ns="global_costmap" />
 <rosparam file="$(find turtlebot_slam)/move_base_config/costmap_common_params.yaml" command="load" ns="local_costmap" />
 <rosparam file="$(find turtlebot_slam)/move_base_config/local_costmap_params.yaml" command="load" />
